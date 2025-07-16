@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS contact (
+    id BIGINT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP
+);
