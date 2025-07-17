@@ -2,20 +2,16 @@ package be.yorian.emailcampaignservice.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
-import jakarta.validation.constraints.NotBlank;
 
 import java.util.List;
 
 @Entity
 public class EmailTemplate extends BaseClass {
 
-    @NotBlank(message = "Please provide a template name")
     private String name;
 
-    @NotBlank(message = "Please provide a subject")
     private String subject;
 
-    @NotBlank(message = "Please provide a body")
     private String bodyHtml;
 
     @OneToMany(mappedBy = "template")
