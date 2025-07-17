@@ -22,6 +22,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,7 +37,7 @@ class EmailTemplateServiceImplTest {
 
     @Test
     @DisplayName("Create EmailTemplate should create and return EmailTemplate")
-    void createEmailTemplate_ShouldCreateEmailTemplate_AndReturnEmailTemplate() {
+    void createEmailTemplate_shouldCreateEmailTemplate_returnsNewEmailTemplate() {
         LocalDateTime createdAt = now();
         EmailTemplateDTO newEmailTemplateDTO = newEmailTemplateDTO();
         EmailTemplate savedEmailTemplate = newSavedEmailTemplate(createdAt);
@@ -52,16 +54,15 @@ class EmailTemplateServiceImplTest {
 
     @Test
     @DisplayName("Get EmailTemplate by id should return EmailTemplate")
-    void getEmailTemplateById_ShouldReturnEmailTemplate() {
+    void getEmailTemplateById_shouldReturnEmailTemplate() {
         LocalDateTime createdAt = now();
-        Long emailTemplateId = 1L;
         EmailTemplate savedEmailTemplate = newSavedEmailTemplate(createdAt);
 
-        when(repository.findById(emailTemplateId)).thenReturn(Optional.of(savedEmailTemplate));
+        when(repository.findById(savedEmailTemplate.getId())).thenReturn(Optional.of(savedEmailTemplate));
 
-        EmailTemplateDTO returnedEmailTemplate = service.getEmailTemplateById(emailTemplateId);
+        EmailTemplateDTO returnedEmailTemplate = service.getEmailTemplateById(savedEmailTemplate.getId());
 
-        assertThat(returnedEmailTemplate.id()).isEqualTo(emailTemplateId);
+        assertThat(returnedEmailTemplate.id()).isEqualTo(savedEmailTemplate.getId());
         assertThat(returnedEmailTemplate.name()).isEqualTo(savedEmailTemplate.getName());
         assertThat(returnedEmailTemplate.subject()).isEqualTo(savedEmailTemplate.getSubject());
         assertThat(returnedEmailTemplate.bodyHtml()).isEqualTo(savedEmailTemplate.getBodyHtml());
@@ -70,7 +71,7 @@ class EmailTemplateServiceImplTest {
 
     @Test
     @DisplayName("Get EmailTemplate by id should return exception when not exists")
-    void getEmailTemplateById_ShouldThrowException_WhenNotExists() {
+    void getEmailTemplateById_shouldThrowException_whenNotExists() {
         Long unknownEmailTemplateId = 101L;
 
         when(repository.findById(unknownEmailTemplateId)).thenReturn(Optional.empty());
@@ -80,7 +81,7 @@ class EmailTemplateServiceImplTest {
 
     @Test
     @DisplayName("Update EmailTemplate should update and return updated EmailTemplate")
-    void updateEmailTemplate_ShouldUpdateEmailTemplate_AndReturnUpdatedEmailTemplate() {
+    void updateEmailTemplate_shouldUpdateEmailTemplate_returnUpdatedEmailTemplate() {
         LocalDateTime createdAt = now().minusDays(1);
         LocalDateTime updatedAt = now();
         EmailTemplate savedEmailTemplate = newSavedEmailTemplate(createdAt);
@@ -94,12 +95,12 @@ class EmailTemplateServiceImplTest {
         assertThat(returnedEmailTemplate.subject()).isEqualTo(updatedEmailTemplateDTO.subject());
         assertThat(returnedEmailTemplate.bodyHtml()).isEqualTo(updatedEmailTemplateDTO.bodyHtml());
         assertThat(returnedEmailTemplate.createdAt()).isEqualTo(createdAt);
-        assertThat(returnedEmailTemplate.updatedAt()).isNotNull().isAfter(updatedAt);
+        assertThat(returnedEmailTemplate.updatedAt()).isAfter(createdAt);
     }
 
     @Test
     @DisplayName("Update EmailTemplate should return exception when not exists")
-    void updateEmailTemplate_ShouldThrowException_WhenNotExists() {
+    void updateEmailTemplate_shouldThrowException_whenNotExists() {
         Long unknownEmailTemplateId = 101L;
         LocalDateTime createdAt = now().minusDays(1);
         LocalDateTime updatedAt = now();
@@ -108,6 +109,29 @@ class EmailTemplateServiceImplTest {
         when(repository.findById(unknownEmailTemplateId)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> service.updateEmailTemplate(unknownEmailTemplateId, updatedEmailTemplateDTO));
+    }
+
+    @Test
+    @DisplayName("Delete EmailTemplate should delete EmailTemplate")
+    void deleteEmailTemplate_shouldReturnNoContent_whenEmailTemplateDeleted() {
+        LocalDateTime createdAt = now();
+        EmailTemplate savedEmailTemplate = newSavedEmailTemplate(createdAt);
+
+        when(repository.findById(savedEmailTemplate.getId())).thenReturn(Optional.of(savedEmailTemplate));
+
+        service.deleteEmailTemplate(savedEmailTemplate.getId());
+
+        verify(repository, times(1)).delete(savedEmailTemplate);
+    }
+
+    @Test
+    @DisplayName("Delete EmailTemplate should return exception when not exists")
+    void deleteEmailTemplate_shouldThrowException_whenNotExists() {
+        Long unknownEmailTemplateId = 101L;
+
+        when(repository.findById(unknownEmailTemplateId)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> service.deleteEmailTemplate(unknownEmailTemplateId));
     }
 
 }

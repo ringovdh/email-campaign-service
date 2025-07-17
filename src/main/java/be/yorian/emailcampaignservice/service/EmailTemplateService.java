@@ -9,4 +9,6 @@ public interface EmailTemplateService {
     EmailTemplateDTO getEmailTemplateById(Long id);
 
     EmailTemplateDTO updateEmailTemplate(Long id, EmailTemplateDTO emailTemplate);
+
+    void deleteEmailTemplate(Long id);
 }

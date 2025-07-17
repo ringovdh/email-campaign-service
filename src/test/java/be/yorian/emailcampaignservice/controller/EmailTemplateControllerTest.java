@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -25,10 +26,14 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -42,6 +47,8 @@ class EmailTemplateControllerTest {
     private MockMvc mockMvc;
     @MockitoBean
     private EmailTemplateService emailTemplateService;
+    @MockitoBean
+    private JpaMetamodelMappingContext metamodelMappingContext;
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -163,7 +170,7 @@ class EmailTemplateControllerTest {
 
     @Test
     @DisplayName("Update EmailTemplate should return exception when request is not valid")
-    void updateEmailTemplate_shouldReturnException__whenNotValid() throws Exception {
+    void updateEmailTemplate_shouldReturnException_whenNotValid() throws Exception {
         Long unknownEmailTemplateId = 101L;
         LocalDateTime createdAt = now().minusDays(1);
         LocalDateTime updatedAt = now();
@@ -181,4 +188,16 @@ class EmailTemplateControllerTest {
                 );
     }
 
+    @Test
+    @DisplayName("Delete EmailTemplate should return no content when EmailTemplate is deleted")
+    void deleteEmailTemplate_shouldReturnNoContent_whenEmailTemplateDeleted() throws Exception {
+        Long emailTemplateId = 1L;
+        doNothing().when(emailTemplateService).deleteEmailTemplate(emailTemplateId);
+
+        mockMvc.perform(delete(EMAIL_TEMPLATE_BY_ID_URL, emailTemplateId))
+                .andExpect(status().isNoContent());
+
+        verify(emailTemplateService, times(1))
+                .deleteEmailTemplate(emailTemplateId);
+    }
 }

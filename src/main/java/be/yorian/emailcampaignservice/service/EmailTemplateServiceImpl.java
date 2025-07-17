@@ -19,6 +19,7 @@ import static java.time.LocalDateTime.now;
 public class EmailTemplateServiceImpl implements EmailTemplateService {
 
     private static final Logger log = LoggerFactory.getLogger(EmailTemplateServiceImpl.class);
+    private static final String EMAILTEMPLATE_NOT_FOUND = "EmailTemplate not found with id: ";
     private final EmailTemplateRepository emailTemplateRepository;
 
     @Autowired
@@ -39,16 +40,13 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     @Override
     @Transactional(readOnly = true)
     public EmailTemplateDTO getEmailTemplateById(Long id) {
-        EmailTemplate template = emailTemplateRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("EmailTemplate not found with id: " + id));
+        EmailTemplate template = findTemplateById(id);
         return mapToEmailTemplateDTO(template);
     }
 
     @Override
     public EmailTemplateDTO updateEmailTemplate(Long id, EmailTemplateDTO updatedEmailTemplateDTO) {
-        EmailTemplate template = emailTemplateRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("EmailTemplate not found with id: " + id));
-
+        EmailTemplate template = findTemplateById(id);
         template.setName(updatedEmailTemplateDTO.name());
         template.setSubject(updatedEmailTemplateDTO.subject());
         template.setBodyHtml(updatedEmailTemplateDTO.bodyHtml());
@@ -59,4 +57,14 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
         return mapToEmailTemplateDTO(template);
     }
 
+    @Override
+    public void deleteEmailTemplate(Long id) {
+        emailTemplateRepository.delete(findTemplateById(id));
+        log.info("Delete EmailTemplate with id: {}", id);
+    }
+
+    private EmailTemplate findTemplateById(Long id) {
+        return emailTemplateRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(EMAILTEMPLATE_NOT_FOUND + id));
+    }
 }
