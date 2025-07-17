@@ -7,4 +7,6 @@ import org.springframework.http.ResponseEntity;
 public interface EmailTemplateController {
 
     ResponseEntity<EmailTemplateDTO> createEmailTemplate(EmailTemplateDTO emailTemplateDTO);
+
+    ResponseEntity<EmailTemplateDTO> getEmailTemplateById(Long id);
 }

@@ -4,6 +4,8 @@ import be.yorian.emailcampaignservice.dto.EmailTemplateDTO;
 import be.yorian.emailcampaignservice.service.EmailTemplateService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +25,7 @@ public class EmailTemplateControllerImpl implements EmailTemplateController {
     }
 
     @Override
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<EmailTemplateDTO> createEmailTemplate(@RequestBody @Valid EmailTemplateDTO emailTemplateDTO) {
         EmailTemplateDTO savedEmailTemplateDTO = emailTemplateService.createEmailTemplate(emailTemplateDTO);
         URI location = ServletUriComponentsBuilder
@@ -34,5 +36,12 @@ public class EmailTemplateControllerImpl implements EmailTemplateController {
         return ResponseEntity.created(location).body(savedEmailTemplateDTO);
 
     }
+
+    @Override
+    @GetMapping("/{id}")
+    public ResponseEntity<EmailTemplateDTO> getEmailTemplateById(@PathVariable Long id) {
+        return ResponseEntity.ok(emailTemplateService.getEmailTemplateById(id));
+    }
+
 
 }

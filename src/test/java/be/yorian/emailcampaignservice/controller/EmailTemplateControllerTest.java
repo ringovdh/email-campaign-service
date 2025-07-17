@@ -1,9 +1,9 @@
 package be.yorian.emailcampaignservice.controller;
 
 import be.yorian.emailcampaignservice.dto.EmailTemplateDTO;
-import be.yorian.emailcampaignservice.model.EmailTemplate;
 import be.yorian.emailcampaignservice.service.EmailTemplateService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +18,13 @@ import static be.yorian.emailcampaignservice.mother.EmailTemplateMother.newEmail
 import static be.yorian.emailcampaignservice.mother.EmailTemplateMother.newInvalidEmailTemplateDTO;
 import static be.yorian.emailcampaignservice.mother.EmailTemplateMother.savedEmailTemplateDTO;
 import static org.assertj.core.util.DateUtil.now;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -33,14 +33,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class EmailTemplateControllerTest {
 
     private static final String EMAIL_TEMPLATE_BASE_URL = "/email-templates";
-    private static final String CREATE_EMAIL_TEMPLATE_URL = EMAIL_TEMPLATE_BASE_URL + "/";
-
+    private static final String EMAIL_TEMPLATE_BY_ID_URL = EMAIL_TEMPLATE_BASE_URL + "/{templateId}";
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
     @MockitoBean
     private EmailTemplateService emailTemplateService;
     @Autowired
     private ObjectMapper objectMapper;
+
 
     @Test
     @DisplayName("Create EmailTemplate should return an EmailTemplateDTO")
@@ -51,14 +51,15 @@ class EmailTemplateControllerTest {
 
         when(emailTemplateService.createEmailTemplate(any(EmailTemplateDTO.class))).thenReturn(savedEmailTemplateDTO);
 
-        mockMvc.perform(post(CREATE_EMAIL_TEMPLATE_URL)
+        mockMvc.perform(post(EMAIL_TEMPLATE_BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newEmailTemplateDTO)))
                 .andExpect(status().isCreated())
-                .andExpect(header().string("Location", "http://localhost/email-templates/5"))
-                .andExpect(jsonPath("$.id", is(5)))
-                .andExpect(jsonPath("$.subject", is("This is the subject")))
-                .andExpect(jsonPath("$.bodyHtml", is("Email <b>content</b> comes here.")));
+                .andExpect(header().string("Location", "http://localhost" + EMAIL_TEMPLATE_BASE_URL + "/" + savedEmailTemplateDTO.id()))
+                .andExpect(jsonPath("$.id", is(savedEmailTemplateDTO.id().intValue())))
+                .andExpect(jsonPath("$.name", is(savedEmailTemplateDTO.name())))
+                .andExpect(jsonPath("$.subject", is(savedEmailTemplateDTO.subject())))
+                .andExpect(jsonPath("$.bodyHtml", is(savedEmailTemplateDTO.bodyHtml())));
     }
 
     @Test
@@ -66,7 +67,7 @@ class EmailTemplateControllerTest {
     void createEmailTemplate_shouldReturnException_whenNotValid() throws Exception {
         EmailTemplateDTO newEmailTemplate = newInvalidEmailTemplateDTO();
 
-        mockMvc.perform(post(CREATE_EMAIL_TEMPLATE_URL)
+        mockMvc.perform(post(EMAIL_TEMPLATE_BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(newEmailTemplate)))
                 .andExpect(status().isBadRequest())
@@ -76,6 +77,39 @@ class EmailTemplateControllerTest {
                         "Please provide a template name",
                         "Please provide a subject"))
                 );
+    }
+
+    @Test
+    @DisplayName("Get EmailTemplate by id should return an EmailTemplateDTO")
+    void getEmailTemplateById_shouldReturnEmailTemplateDTO() throws Exception {
+        Date createdAt = now();
+        EmailTemplateDTO savedEmailTemplateDTO = savedEmailTemplateDTO(createdAt);
+
+        when(emailTemplateService.getEmailTemplateById(savedEmailTemplateDTO.id())).thenReturn(savedEmailTemplateDTO);
+
+        mockMvc.perform(get(EMAIL_TEMPLATE_BY_ID_URL, savedEmailTemplateDTO.id())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(savedEmailTemplateDTO.id().intValue())))
+                .andExpect(jsonPath("$.name", is(savedEmailTemplateDTO.name())))
+                .andExpect(jsonPath("$.subject", is(savedEmailTemplateDTO.subject())))
+                .andExpect(jsonPath("$.bodyHtml", is(savedEmailTemplateDTO.bodyHtml())));
+    }
+
+    @Test
+    @DisplayName("Get EmailTemplate by id should return exception when not exists")
+    void getEmailTemplateById_shouldReturnException_whenNotExists() throws Exception {
+        Long unknownEmailTemplateId = 101L;
+        String errorMessage = "EmailTemplate not found with id: " + unknownEmailTemplateId;
+
+        when(emailTemplateService.getEmailTemplateById(unknownEmailTemplateId))
+                .thenThrow(new EntityNotFoundException(errorMessage));
+
+        mockMvc.perform(get(EMAIL_TEMPLATE_BY_ID_URL, unknownEmailTemplateId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorCode", is(404)))
+                .andExpect(jsonPath("$.message", is(errorMessage)));
     }
 
 }

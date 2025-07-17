@@ -3,6 +3,7 @@ package be.yorian.emailcampaignservice.service;
 import be.yorian.emailcampaignservice.dto.EmailTemplateDTO;
 import be.yorian.emailcampaignservice.model.EmailTemplate;
 import be.yorian.emailcampaignservice.repository.EmailTemplateRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,5 +34,11 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
         return mapToEmailTemplateDTO(savedEmailTemplate);
     }
 
-
+    @Override
+    @Transactional(readOnly = true)
+    public EmailTemplateDTO getEmailTemplateById(Long id) {
+        EmailTemplate template = emailTemplateRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("EmailTemplate not found with id: " + id));
+        return mapToEmailTemplateDTO(template);
+    }
 }
