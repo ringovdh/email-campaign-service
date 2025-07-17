@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,13 +35,20 @@ public class EmailTemplateControllerImpl implements EmailTemplateController {
                 .buildAndExpand(savedEmailTemplateDTO.id())
                 .toUri();
         return ResponseEntity.created(location).body(savedEmailTemplateDTO);
-
     }
 
     @Override
     @GetMapping("/{id}")
     public ResponseEntity<EmailTemplateDTO> getEmailTemplateById(@PathVariable Long id) {
         return ResponseEntity.ok(emailTemplateService.getEmailTemplateById(id));
+    }
+
+    @Override
+    @PutMapping("/{id}")
+    public ResponseEntity<EmailTemplateDTO> updateEmailTemplate(
+            @PathVariable Long id,
+            @RequestBody @Valid EmailTemplateDTO updatedEmailTemplateDTO) {
+        return ResponseEntity.ok(emailTemplateService.updateEmailTemplate(id, updatedEmailTemplateDTO));
     }
 
 

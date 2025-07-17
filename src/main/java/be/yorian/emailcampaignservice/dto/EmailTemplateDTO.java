@@ -2,7 +2,7 @@ package be.yorian.emailcampaignservice.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 public record EmailTemplateDTO(
         Long id,
@@ -12,6 +12,6 @@ public record EmailTemplateDTO(
         String subject,
         @NotBlank(message = "Please provide a bodyHtml")
         String bodyHtml,
-        Date createdAt,
-        Date updatedAt) {
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt) {
 }

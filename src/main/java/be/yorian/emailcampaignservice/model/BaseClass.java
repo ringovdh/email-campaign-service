@@ -5,7 +5,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @MappedSuperclass
 abstract class BaseClass {
@@ -13,8 +13,8 @@ abstract class BaseClass {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
-    protected Date createdAt;
-    protected Date updatedAt;
+    protected LocalDateTime createdAt;
+    protected LocalDateTime updatedAt;
 
     public Long getId() {
         return id;
@@ -24,19 +24,19 @@ abstract class BaseClass {
         this.id = id;
     }
 
-    public Date getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Date getUpdatedAt() {
+    public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Date updatedAt) {
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 

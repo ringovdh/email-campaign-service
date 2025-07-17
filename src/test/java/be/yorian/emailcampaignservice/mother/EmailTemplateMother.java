@@ -3,7 +3,7 @@ package be.yorian.emailcampaignservice.mother;
 import be.yorian.emailcampaignservice.dto.EmailTemplateDTO;
 import be.yorian.emailcampaignservice.model.EmailTemplate;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 public class EmailTemplateMother {
 
@@ -15,7 +15,7 @@ public class EmailTemplateMother {
         return  emailTemplate;
     }
 
-    public static EmailTemplate newSavedEmailTemplate(Date createdAt) {
+    public static EmailTemplate newSavedEmailTemplate(LocalDateTime createdAt) {
         EmailTemplate savedEmailTemplate = newEmailTemplate();
         savedEmailTemplate.setId(1L);
         savedEmailTemplate.setCreatedAt(createdAt);
@@ -42,7 +42,7 @@ public class EmailTemplateMother {
                 null);
     }
 
-    public static EmailTemplateDTO savedEmailTemplateDTO(Date createdAt) {
+    public static EmailTemplateDTO savedEmailTemplateDTO(LocalDateTime createdAt) {
         return new EmailTemplateDTO(
                 5L,
                 "test email template",
@@ -50,5 +50,25 @@ public class EmailTemplateMother {
                 "Email <b>content</b> comes here.",
                 createdAt,
                 null);
+    }
+
+    public static EmailTemplateDTO updatedEmailTemplateDTO(LocalDateTime createdAt, LocalDateTime updatedAt) {
+        return new EmailTemplateDTO(
+                5L,
+                "test email template",
+                "This is an updated subject",
+                "Email <b>content</b> comes here.",
+                createdAt,
+                updatedAt);
+    }
+
+    public static EmailTemplateDTO invalidUpdatedEmailTemplateDTO(LocalDateTime createdAt, LocalDateTime updatedAt) {
+        return new EmailTemplateDTO(
+                5L,
+                "",
+                null,
+                "Email <b>content</b> comes here.",
+                createdAt,
+                updatedAt);
     }
 }

@@ -7,4 +7,6 @@ public interface EmailTemplateService {
     EmailTemplateDTO createEmailTemplate(EmailTemplateDTO emailTemplate);
 
     EmailTemplateDTO getEmailTemplateById(Long id);
+
+    EmailTemplateDTO updateEmailTemplate(Long id, EmailTemplateDTO emailTemplate);
 }
