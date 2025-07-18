@@ -9,7 +9,9 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -31,6 +33,10 @@ public class EmailCampaign extends  BaseClass {
     @Enumerated(EnumType.STRING)
     private EmailStatus status;
 
+    @NotNull
+    private LocalDateTime scheduledAt;
+
+
     public String getName() {
         return name;
     }
@@ -51,7 +57,7 @@ public class EmailCampaign extends  BaseClass {
         return contacts;
     }
 
-    public void setContactIds(List<Contact> contacts) {
+    public void setContacts(List<Contact> contacts) {
         this.contacts = contacts;
     }
 
@@ -61,6 +67,14 @@ public class EmailCampaign extends  BaseClass {
 
     public void setStatus(EmailStatus status) {
         this.status = status;
+    }
+
+    public LocalDateTime getScheduledAt() {
+        return scheduledAt;
+    }
+
+    public void setScheduledAt(LocalDateTime scheduledAt) {
+        this.scheduledAt = scheduledAt;
     }
 
 }
