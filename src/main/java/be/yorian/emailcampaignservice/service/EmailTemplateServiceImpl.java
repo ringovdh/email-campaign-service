@@ -30,7 +30,6 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     @Override
     public EmailTemplateDTO createEmailTemplate(EmailTemplateDTO emailTemplateDTO) {
         EmailTemplate emailTemplate = mapToEmailTemplate(emailTemplateDTO);
-        emailTemplate.setCreatedAt(now());
         EmailTemplate savedEmailTemplate = emailTemplateRepository.save(emailTemplate);
         log.info("Create EmailTemplate with id: {}", savedEmailTemplate.getId());
 

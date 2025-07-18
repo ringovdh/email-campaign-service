@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS campaign_statistics (
-    id BIGINT PRIMARY KEY,
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
     campaign_id BIGINT NOT NULL REFERENCES email_campaign(id),
     emailsSent INT,
     emailsDelivered INT,
