@@ -3,6 +3,8 @@ package be.yorian.emailcampaignservice.mapper;
 import be.yorian.emailcampaignservice.dto.EmailTemplateDTO;
 import be.yorian.emailcampaignservice.model.EmailTemplate;
 
+import static java.time.LocalDateTime.now;
+
 public final class EmailTemplateMapper {
 
     public static EmailTemplate mapToEmailTemplate(EmailTemplateDTO emailTemplateDTO) {
@@ -34,5 +36,7 @@ public final class EmailTemplateMapper {
         emailTemplate.setName(updatedEmailTemplateDTO.name());
         emailTemplate.setSubject(updatedEmailTemplateDTO.subject());
         emailTemplate.setBodyHtml(updatedEmailTemplateDTO.bodyHtml());
+        emailTemplate.setCreatedAt(updatedEmailTemplateDTO.createdAt());
+        emailTemplate.setUpdatedAt(now());
     }
 }
