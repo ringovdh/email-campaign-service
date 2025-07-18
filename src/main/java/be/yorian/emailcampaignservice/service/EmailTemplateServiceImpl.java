@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static be.yorian.emailcampaignservice.mapper.EmailTemplateMapper.mapToEmailTemplateDTO;
 import static be.yorian.emailcampaignservice.mapper.EmailTemplateMapper.mapToEmailTemplate;
+import static be.yorian.emailcampaignservice.mapper.EmailTemplateMapper.updateEmailTemplateFromDTO;
 import static java.time.LocalDateTime.now;
 
 @Service
@@ -45,15 +46,12 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 
     @Override
     public EmailTemplateDTO updateEmailTemplate(Long id, EmailTemplateDTO updatedEmailTemplateDTO) {
-        EmailTemplate template = findTemplateById(id);
-        template.setName(updatedEmailTemplateDTO.name());
-        template.setSubject(updatedEmailTemplateDTO.subject());
-        template.setBodyHtml(updatedEmailTemplateDTO.bodyHtml());
-        template.setUpdatedAt(now());
+        EmailTemplate emailTemplate = findTemplateById(id);
 
-        log.info("Update EmailTemplate with id: {}", template.getId());
+        updateEmailTemplateFromDTO(emailTemplate, updatedEmailTemplateDTO);
+        log.info("Update EmailTemplate with id: {}", emailTemplate.getId());
 
-        return mapToEmailTemplateDTO(template);
+        return mapToEmailTemplateDTO(emailTemplate);
     }
 
     @Override
