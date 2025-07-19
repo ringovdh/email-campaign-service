@@ -4,6 +4,8 @@ import be.yorian.emailcampaignservice.dto.EmailCampaignDTO;
 import be.yorian.emailcampaignservice.service.EmailCampaignService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,5 +36,12 @@ public class EmailCampaignControllerImpl implements EmailCampaignController {
                 .toUri();
         return ResponseEntity.created(location).body(savedEmailCampaignDTO);
     }
+
+    @Override
+    @GetMapping("/{id}")
+    public ResponseEntity<EmailCampaignDTO> getEmailCampaignById(@PathVariable Long id) {
+        return ResponseEntity.ok(emailCampaignService.getEmailCampaignById(id));
+    }
+
 
 }

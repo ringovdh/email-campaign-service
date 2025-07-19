@@ -44,6 +44,19 @@ public class EmailCampaignMother {
         );
     }
 
+    public static EmailCampaignDTO newInvalidEmailCampaignDTO() {
+        return new EmailCampaignDTO(
+                0L,
+                "",
+                null,
+                List.of(),
+                null,
+                null,
+                null,
+                null
+        );
+    }
+
     public static EmailCampaignDTO savedEmailCampaignDTO(LocalDateTime createdAt) {
         return new EmailCampaignDTO(
                 1L,

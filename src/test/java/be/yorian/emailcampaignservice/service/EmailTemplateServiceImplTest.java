@@ -4,6 +4,7 @@ import be.yorian.emailcampaignservice.dto.EmailTemplateDTO;
 import be.yorian.emailcampaignservice.model.EmailTemplate;
 import be.yorian.emailcampaignservice.repository.EmailTemplateRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,18 +30,23 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class EmailTemplateServiceImplTest {
 
+    private LocalDateTime createdAt;
+    private EmailTemplate savedEmailTemplate;
     @Mock
     private EmailTemplateRepository emailTemplateRepository;
-
     @InjectMocks
     private EmailTemplateServiceImpl emailTemplateService;
+
+    @BeforeEach
+    void setUp() {
+        createdAt = now();
+        savedEmailTemplate = newSavedEmailTemplate(createdAt);
+    }
 
     @Test
     @DisplayName("Create EmailTemplate should create and return EmailTemplate")
     void createEmailTemplate_shouldCreateEmailTemplate_returnsNewEmailTemplate() {
-        LocalDateTime createdAt = now();
         EmailTemplateDTO newEmailTemplateDTO = newEmailTemplateDTO();
-        EmailTemplate savedEmailTemplate = newSavedEmailTemplate(createdAt);
 
         when(emailTemplateRepository.save(any(EmailTemplate.class))).thenReturn(savedEmailTemplate);
 
@@ -55,9 +61,6 @@ class EmailTemplateServiceImplTest {
     @Test
     @DisplayName("Get EmailTemplate by id should return EmailTemplate")
     void getEmailTemplateById_shouldReturnEmailTemplate() {
-        LocalDateTime createdAt = now();
-        EmailTemplate savedEmailTemplate = newSavedEmailTemplate(createdAt);
-
         when(emailTemplateRepository.findById(savedEmailTemplate.getId())).thenReturn(Optional.of(savedEmailTemplate));
 
         EmailTemplateDTO returnedEmailTemplate = emailTemplateService.getEmailTemplateById(savedEmailTemplate.getId());
@@ -76,15 +79,17 @@ class EmailTemplateServiceImplTest {
 
         when(emailTemplateRepository.findById(unknownEmailTemplateId)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> emailTemplateService.getEmailTemplateById(unknownEmailTemplateId));
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                () -> emailTemplateService.getEmailTemplateById(unknownEmailTemplateId));
+
+        assertThat(exception.getMessage())
+                .isEqualTo("EmailTemplate not found with id: " + unknownEmailTemplateId.intValue());
     }
 
     @Test
     @DisplayName("Update EmailTemplate should update and return updated EmailTemplate")
     void updateEmailTemplate_shouldUpdateEmailTemplate_returnUpdatedEmailTemplate() {
-        LocalDateTime createdAt = now().minusDays(1);
-        LocalDateTime updatedAt = now();
-        EmailTemplate savedEmailTemplate = newSavedEmailTemplate(createdAt);
+        LocalDateTime updatedAt = now().plusDays(1);
         EmailTemplateDTO updatedEmailTemplateDTO = updatedEmailTemplateDTO(createdAt, updatedAt);
 
         when(emailTemplateRepository.findById(savedEmailTemplate.getId())).thenReturn(Optional.of(savedEmailTemplate));
@@ -102,21 +107,21 @@ class EmailTemplateServiceImplTest {
     @DisplayName("Update EmailTemplate should return exception when not exists")
     void updateEmailTemplate_shouldThrowException_whenNotExists() {
         Long unknownEmailTemplateId = 101L;
-        LocalDateTime createdAt = now().minusDays(1);
-        LocalDateTime updatedAt = now();
+        LocalDateTime updatedAt = now().plusDays(1);
         EmailTemplateDTO updatedEmailTemplateDTO = updatedEmailTemplateDTO(createdAt, updatedAt);
 
         when(emailTemplateRepository.findById(unknownEmailTemplateId)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> emailTemplateService.updateEmailTemplate(unknownEmailTemplateId, updatedEmailTemplateDTO));
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                () -> emailTemplateService.updateEmailTemplate(unknownEmailTemplateId, updatedEmailTemplateDTO));
+
+        assertThat(exception.getMessage())
+                .isEqualTo("EmailTemplate not found with id: " + unknownEmailTemplateId.intValue());
     }
 
     @Test
     @DisplayName("Delete EmailTemplate should delete EmailTemplate")
     void deleteEmailTemplate_shouldReturnNoContent_whenEmailTemplateDeleted() {
-        LocalDateTime createdAt = now();
-        EmailTemplate savedEmailTemplate = newSavedEmailTemplate(createdAt);
-
         when(emailTemplateRepository.findById(savedEmailTemplate.getId())).thenReturn(Optional.of(savedEmailTemplate));
 
         emailTemplateService.deleteEmailTemplate(savedEmailTemplate.getId());
@@ -131,7 +136,11 @@ class EmailTemplateServiceImplTest {
 
         when(emailTemplateRepository.findById(unknownEmailTemplateId)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> emailTemplateService.deleteEmailTemplate(unknownEmailTemplateId));
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                () -> emailTemplateService.deleteEmailTemplate(unknownEmailTemplateId));
+
+        assertThat(exception.getMessage())
+                .isEqualTo("EmailTemplate not found with id: " + unknownEmailTemplateId.intValue());
     }
 
 }

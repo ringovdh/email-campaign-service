@@ -94,7 +94,7 @@ class EmailTemplateControllerTest extends BaseControllerTest {
         when(emailTemplateService.getEmailTemplateById(savedEmailTemplateDTO.id())).thenReturn(savedEmailTemplateDTO);
 
         String response = mockMvc.perform(get(EMAIL_TEMPLATE_BY_ID_URL, savedEmailTemplateDTO.id())
-                .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()

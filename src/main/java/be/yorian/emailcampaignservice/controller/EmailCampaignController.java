@@ -7,4 +7,6 @@ public interface EmailCampaignController {
 
     ResponseEntity<EmailCampaignDTO> createEmailCampaign(EmailCampaignDTO emailCampaignDTO);
 
+    ResponseEntity<EmailCampaignDTO> getEmailCampaignById(Long id);
+
 }
