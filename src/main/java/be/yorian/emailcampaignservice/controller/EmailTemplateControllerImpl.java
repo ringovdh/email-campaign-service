@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/email-templates")
@@ -59,5 +60,11 @@ public class EmailTemplateControllerImpl implements EmailTemplateController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteEmailTemplate(@PathVariable Long id) {
         emailTemplateService.deleteEmailTemplate(id);
+    }
+
+    @Override
+    @GetMapping("/updated")
+    public ResponseEntity<List<EmailTemplateDTO>> getUpdatedTemplates() {
+        return  ResponseEntity.ok(emailTemplateService.getUpdatedTemplates());
     }
 }

@@ -1,15 +1,10 @@
 package be.yorian.emailcampaignservice.integration;
 
 import be.yorian.emailcampaignservice.dto.EmailCampaignDTO;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import static be.yorian.emailcampaignservice.mother.EmailCampaignMother.newEmailCampaignDTO;
@@ -21,51 +16,45 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@SpringBootTest
-@AutoConfigureMockMvc
-public class EmailCampaignIT {
+public class EmailCampaignIT extends BaseIT {
 
     private static final String EMAIL_CAMPAIGN_BASE_URL = "/email-campaigns";
-    @Autowired
-    protected MockMvc mockMvc;
-    @Autowired
-    protected ObjectMapper objectMapper;
 
     @Test
     @Sql(statements = """
             INSERT INTO CONTACT(id, email, created_at, updated_at)
-                    VALUES(1, 'test.a@prompto.com', now(), null);
+                    VALUES(1, 'test.a@prompto.com', '2025-07-19T10:00:00', null);
             INSERT INTO CONTACT(id, email, created_at, updated_at)
-                    VALUES(2, 'test.b@prompto.com', now(), null);
-            INSERT INTO email_template(id, name, subject, body_html, created_at, updated_at)
-                    VALUES (1, 'Test email template', 'test subject', 'Hello Prompto', now(), null);"""
+                    VALUES(2, 'test.b@prompto.com', '2025-07-19T10:00:00', null);
+            INSERT INTO EMAIL_TEMPLATE(id, name, subject, body_html, created_at, updated_at)
+                    VALUES (1, 'Test email template', 'test subject', 'Hello Prompto', '2025-07-19T10:00:00', null);"""
     )
     @DisplayName("Create an emailCampaign should create save and return emailCampaignDto")
     @Transactional
-    public void createEmailCampaign_shouldReturnDTO() throws Exception {
+    void createEmailCampaign_shouldReturnDTO() throws Exception {
         EmailCampaignDTO newEmailCampaignDTO = newEmailCampaignDTO(now());
 
-        String result =  mockMvc.perform(post(EMAIL_CAMPAIGN_BASE_URL)
+        String response = mockMvc.perform(post(EMAIL_CAMPAIGN_BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newEmailCampaignDTO)))
                 .andExpect(status().isCreated())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-        EmailCampaignDTO dto = objectMapper.readValue(result, EmailCampaignDTO.class);
+        EmailCampaignDTO dto = objectMapper.readValue(response, EmailCampaignDTO.class);
         assertNotEquals(0, dto.id());
     }
 
     @Test
     @Sql(statements = """
             INSERT INTO CONTACT(id, email, created_at, updated_at)
-                    VALUES(1, 'test.a@prompto.com', now(), null);
-            INSERT INTO email_template(id, name, subject, body_html, created_at, updated_at)
-                    VALUES (1, 'Test email template', 'test subject', 'Hello Prompto', now(), null);"""
+                    VALUES(1, 'test.a@prompto.com', '2025-07-19T10:00:00', null);
+            INSERT INTO EMAIL_TEMPLATE(id, name, subject, body_html, created_at, updated_at)
+                    VALUES (1, 'Test email template', 'test subject', 'Hello Prompto', '2025-07-19T10:00:00', null);"""
     )
     @DisplayName("Create an emailCampaign should throw exception when contact not exists")
     @Transactional
-    public void createEmailCampaign_shouldThrowException_whenContactNotExists() throws Exception {
+    void createEmailCampaign_shouldThrowException_whenContactNotExists() throws Exception {
         EmailCampaignDTO newEmailCampaignDTO = newEmailCampaignDTO(now());
 
         mockMvc.perform(post(EMAIL_CAMPAIGN_BASE_URL)
@@ -79,13 +68,13 @@ public class EmailCampaignIT {
     @Test
     @Sql(statements = """
             INSERT INTO CONTACT(id, email, created_at, updated_at)
-                    VALUES(1, 'test.a@prompto.com', now(), null);
+                    VALUES(1, 'test.a@prompto.com', '2025-07-19T10:00:00', null);
             INSERT INTO CONTACT(id, email, created_at, updated_at)
-                    VALUES(2, 'test.b@prompto.com', now(), null);"""
+                    VALUES(2, 'test.b@prompto.com', '2025-07-19T10:00:00', null);"""
     )
     @DisplayName("Create an emailCampaign should throw exception when template not exists")
     @Transactional
-    public void createEmailCampaign_shouldThrowException_whenTemplateNotExists() throws Exception {
+    void createEmailCampaign_shouldThrowException_whenTemplateNotExists() throws Exception {
         EmailCampaignDTO newEmailCampaignDTO = newEmailCampaignDTO(now());
 
         mockMvc.perform(post(EMAIL_CAMPAIGN_BASE_URL)

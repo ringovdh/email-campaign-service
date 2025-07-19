@@ -1,6 +1,7 @@
 package be.yorian.emailcampaignservice.service;
 
 import be.yorian.emailcampaignservice.dto.EmailTemplateDTO;
+import be.yorian.emailcampaignservice.mapper.EmailTemplateMapper;
 import be.yorian.emailcampaignservice.model.EmailTemplate;
 import be.yorian.emailcampaignservice.repository.EmailTemplateRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -9,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static be.yorian.emailcampaignservice.mapper.EmailTemplateMapper.mapToEmailTemplateDTO;
 import static be.yorian.emailcampaignservice.mapper.EmailTemplateMapper.mapToEmailTemplate;
@@ -57,6 +60,13 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     public void deleteEmailTemplate(Long id) {
         emailTemplateRepository.delete(findTemplateById(id));
         log.info("Delete EmailTemplate with id: {}", id);
+    }
+
+    @Override
+    public List<EmailTemplateDTO> getUpdatedTemplates() {
+        return emailTemplateRepository.findAllByUpdatedAtIsAfterCreatedAt().stream()
+                .map(EmailTemplateMapper::mapToEmailTemplateDTO)
+                .toList();
     }
 
     private EmailTemplate findTemplateById(Long id) {

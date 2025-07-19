@@ -3,6 +3,8 @@ package be.yorian.emailcampaignservice.controller;
 import be.yorian.emailcampaignservice.dto.EmailTemplateDTO;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
+
 
 public interface EmailTemplateController {
 
@@ -13,4 +15,7 @@ public interface EmailTemplateController {
     ResponseEntity<EmailTemplateDTO> updateEmailTemplate(Long id, EmailTemplateDTO emailTemplateDTO);
 
     void deleteEmailTemplate(Long id);
+
+    ResponseEntity<List<EmailTemplateDTO>> getUpdatedTemplates();
+
 }

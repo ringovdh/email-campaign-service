@@ -22,6 +22,13 @@ public class EmailTemplateMother {
         return  savedEmailTemplate;
     }
 
+    public static EmailTemplate updatedEmailTemplate(LocalDateTime createdAt, LocalDateTime updatedAt) {
+        EmailTemplate updatedEmailTemplate = newSavedEmailTemplate(createdAt);
+        updatedEmailTemplate.setSubject("This is the updated subject");
+        updatedEmailTemplate.setUpdatedAt(updatedAt);
+        return  updatedEmailTemplate;
+    }
+
     public static EmailTemplateDTO newEmailTemplateDTO() {
         return new EmailTemplateDTO(
                 0L,

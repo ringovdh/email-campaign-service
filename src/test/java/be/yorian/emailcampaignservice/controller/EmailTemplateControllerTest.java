@@ -2,7 +2,9 @@ package be.yorian.emailcampaignservice.controller;
 
 import be.yorian.emailcampaignservice.dto.EmailTemplateDTO;
 import be.yorian.emailcampaignservice.service.EmailTemplateService;
+import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -10,6 +12,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static be.yorian.emailcampaignservice.mother.EmailTemplateMother.invalidUpdatedEmailTemplateDTO;
 import static be.yorian.emailcampaignservice.mother.EmailTemplateMother.newEmailTemplateDTO;
@@ -41,16 +45,23 @@ class EmailTemplateControllerTest extends BaseControllerTest {
 
     private static final String EMAIL_TEMPLATE_BASE_URL = "/email-templates";
     private static final String EMAIL_TEMPLATE_BY_ID_URL = EMAIL_TEMPLATE_BASE_URL + "/{templateId}";
+    private static final String GET_EMAIL_TEMPLATE_UPDATED_URL = EMAIL_TEMPLATE_BASE_URL + "/updated";
+    private LocalDateTime createdAt;
+    private EmailTemplateDTO savedEmailTemplateDTO;
 
     @MockitoBean
     private EmailTemplateService emailTemplateService;
 
+    @BeforeEach
+    void setUp() {
+        createdAt = now();
+        savedEmailTemplateDTO = savedEmailTemplateDTO(createdAt);
+    }
+
     @Test
     @DisplayName("Create EmailTemplate should return an EmailTemplateDTO")
     void createEmailTemplate_shouldReturnDTO() throws Exception {
-        LocalDateTime createdAt = now();
         EmailTemplateDTO newEmailTemplateDTO = newEmailTemplateDTO();
-        EmailTemplateDTO savedEmailTemplateDTO = savedEmailTemplateDTO(createdAt);
 
         when(emailTemplateService.createEmailTemplate(any(EmailTemplateDTO.class))).thenReturn(savedEmailTemplateDTO);
 
@@ -88,9 +99,6 @@ class EmailTemplateControllerTest extends BaseControllerTest {
     @Test
     @DisplayName("Get EmailTemplate by id should return an EmailTemplateDTO")
     void getEmailTemplateById_shouldReturnEmailTemplateDTO() throws Exception {
-        LocalDateTime createdAt = now();
-        EmailTemplateDTO savedEmailTemplateDTO = savedEmailTemplateDTO(createdAt);
-
         when(emailTemplateService.getEmailTemplateById(savedEmailTemplateDTO.id())).thenReturn(savedEmailTemplateDTO);
 
         String response = mockMvc.perform(get(EMAIL_TEMPLATE_BY_ID_URL, savedEmailTemplateDTO.id())
@@ -123,16 +131,14 @@ class EmailTemplateControllerTest extends BaseControllerTest {
     @Test
     @DisplayName("Update EmailTemplate should return an updated EmailTemplateDTO")
     void updateEmailTemplate_shouldReturnUpdatedEmailTemplateDTO() throws Exception {
-        LocalDateTime createdAt = now().minusDays(1);
-        LocalDateTime updatedAt = now();
-        EmailTemplateDTO existingEmailTemplateDTO = savedEmailTemplateDTO(createdAt);
+        LocalDateTime updatedAt = now().plusDays(1);
         EmailTemplateDTO updatedEmailTemplateDTO = updatedEmailTemplateDTO(createdAt, updatedAt);
 
         when(emailTemplateService.updateEmailTemplate(
-                eq(existingEmailTemplateDTO.id()),
+                eq(savedEmailTemplateDTO.id()),
                 any(EmailTemplateDTO.class))).thenReturn(updatedEmailTemplateDTO);
 
-        String response = mockMvc.perform(put(EMAIL_TEMPLATE_BY_ID_URL, existingEmailTemplateDTO.id())
+        String response = mockMvc.perform(put(EMAIL_TEMPLATE_BY_ID_URL, savedEmailTemplateDTO.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updatedEmailTemplateDTO)))
                 .andExpect(status().isOk())
@@ -149,8 +155,7 @@ class EmailTemplateControllerTest extends BaseControllerTest {
     @DisplayName("Update EmailTemplate should return exception when not exists")
     void updateEmailTemplate_shouldReturnException_whenNotExists() throws Exception {
         Long unknownEmailTemplateId = 101L;
-        LocalDateTime createdAt = now().minusDays(1);
-        LocalDateTime updatedAt = now();
+        LocalDateTime updatedAt = now().plusDays(1);
         EmailTemplateDTO updatedEmailTemplateDTO = updatedEmailTemplateDTO(createdAt, updatedAt);
         String errorMessage = "EmailTemplate not found with id: " + unknownEmailTemplateId;
 
@@ -170,8 +175,7 @@ class EmailTemplateControllerTest extends BaseControllerTest {
     @DisplayName("Update EmailTemplate should return exception when request is not valid")
     void updateEmailTemplate_shouldReturnException_whenNotValid() throws Exception {
         Long unknownEmailTemplateId = 101L;
-        LocalDateTime createdAt = now().minusDays(1);
-        LocalDateTime updatedAt = now();
+        LocalDateTime updatedAt = now().plusDays(1);
         EmailTemplateDTO invalidUpdatedEmailTemplateDTO = invalidUpdatedEmailTemplateDTO(createdAt, updatedAt);
 
         mockMvc.perform(put(EMAIL_TEMPLATE_BY_ID_URL, unknownEmailTemplateId)
@@ -214,6 +218,29 @@ class EmailTemplateControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("$.message", is(errorMessage)));
     }
 
+    @Test
+    @DisplayName("Get updated templates should return all updated templates")
+    void getUpdatedTemplates_shouldReturnAllUpdatedTemplates() throws Exception {
+        LocalDateTime updatedAt = now().plusDays(1);
+        EmailTemplateDTO updatedEmailTemplateDTO = updatedEmailTemplateDTO(createdAt, updatedAt);
+        when(emailTemplateService.getUpdatedTemplates()).thenReturn(List.of(updatedEmailTemplateDTO));
+
+        String response = mockMvc.perform(get(GET_EMAIL_TEMPLATE_UPDATED_URL)
+                                .accept(MediaType.APPLICATION_JSON))
+                        .andExpect(status().isOk())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
+
+        ArrayList<EmailTemplateDTO> responseDtos = objectMapper.readValue(response, new TypeReference<>() {});
+        assertThat(responseDtos).isNotNull();
+        assertThat(responseDtos).hasSize(1);
+
+        EmailTemplateDTO dto = responseDtos.getFirst();
+        assertThat(dto.updatedAt()).isAfter(dto.createdAt());
+        assertResponse(dto, updatedEmailTemplateDTO);
+    }
+
     private static void assertResponse(EmailTemplateDTO responseDto, EmailTemplateDTO expectedDTO) {
         assertThat(responseDto.id()).isEqualTo(expectedDTO.id());
         assertThat(responseDto.name()).isEqualTo(expectedDTO.name());
@@ -222,4 +249,5 @@ class EmailTemplateControllerTest extends BaseControllerTest {
         assertThat(responseDto.createdAt()).isEqualTo(expectedDTO.createdAt());
         assertThat(responseDto.updatedAt()).isEqualTo(expectedDTO.updatedAt());
     }
+
 }

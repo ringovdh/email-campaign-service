@@ -13,10 +13,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static be.yorian.emailcampaignservice.mother.EmailTemplateMother.newEmailTemplateDTO;
 import static be.yorian.emailcampaignservice.mother.EmailTemplateMother.newSavedEmailTemplate;
+import static be.yorian.emailcampaignservice.mother.EmailTemplateMother.updatedEmailTemplate;
 import static be.yorian.emailcampaignservice.mother.EmailTemplateMother.updatedEmailTemplateDTO;
 import static java.time.LocalDateTime.now;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,7 +85,7 @@ class EmailTemplateServiceImplTest {
                 () -> emailTemplateService.getEmailTemplateById(unknownEmailTemplateId));
 
         assertThat(exception.getMessage())
-                .isEqualTo("EmailTemplate not found with id: " + unknownEmailTemplateId.intValue());
+                .isEqualTo("EmailTemplate not found with id: " + unknownEmailTemplateId);
     }
 
     @Test
@@ -94,7 +96,8 @@ class EmailTemplateServiceImplTest {
 
         when(emailTemplateRepository.findById(savedEmailTemplate.getId())).thenReturn(Optional.of(savedEmailTemplate));
 
-        EmailTemplateDTO returnedEmailTemplate = emailTemplateService.updateEmailTemplate(savedEmailTemplate.getId(), updatedEmailTemplateDTO);
+        EmailTemplateDTO returnedEmailTemplate = emailTemplateService.updateEmailTemplate(
+                savedEmailTemplate.getId(), updatedEmailTemplateDTO);
 
         assertThat(returnedEmailTemplate.name()).isEqualTo(updatedEmailTemplateDTO.name());
         assertThat(returnedEmailTemplate.subject()).isEqualTo(updatedEmailTemplateDTO.subject());
@@ -116,12 +119,12 @@ class EmailTemplateServiceImplTest {
                 () -> emailTemplateService.updateEmailTemplate(unknownEmailTemplateId, updatedEmailTemplateDTO));
 
         assertThat(exception.getMessage())
-                .isEqualTo("EmailTemplate not found with id: " + unknownEmailTemplateId.intValue());
+                .isEqualTo("EmailTemplate not found with id: " + unknownEmailTemplateId);
     }
 
     @Test
     @DisplayName("Delete EmailTemplate should delete EmailTemplate")
-    void deleteEmailTemplate_shouldReturnNoContent_whenEmailTemplateDeleted() {
+    void deleteEmailTemplate_shouldDeleteEmailTemplate() {
         when(emailTemplateRepository.findById(savedEmailTemplate.getId())).thenReturn(Optional.of(savedEmailTemplate));
 
         emailTemplateService.deleteEmailTemplate(savedEmailTemplate.getId());
@@ -140,7 +143,20 @@ class EmailTemplateServiceImplTest {
                 () -> emailTemplateService.deleteEmailTemplate(unknownEmailTemplateId));
 
         assertThat(exception.getMessage())
-                .isEqualTo("EmailTemplate not found with id: " + unknownEmailTemplateId.intValue());
+                .isEqualTo("EmailTemplate not found with id: " + unknownEmailTemplateId);
     }
 
+    @Test
+    @DisplayName("Get updated templates should return all updated templates")
+    void getUpdatedTemplates_shouldReturnAllUpdatedTemplates() {
+        LocalDateTime updatedAt = now().plusDays(1);
+        EmailTemplate updatedEmailTemplate = updatedEmailTemplate(createdAt, updatedAt);
+
+        when(emailTemplateRepository.findAllByUpdatedAtIsAfterCreatedAt()).thenReturn(List.of(updatedEmailTemplate));
+
+        List<EmailTemplateDTO> returnedDtos = emailTemplateService.getUpdatedTemplates();
+        assertThat(returnedDtos).isNotNull();
+        assertThat(returnedDtos).hasSize(1);
+
+    }
 }
