@@ -3,6 +3,7 @@ package be.yorian.emailcampaignservice.service;
 import be.yorian.emailcampaignservice.dto.EmailTemplateDTO;
 import be.yorian.emailcampaignservice.mapper.EmailTemplateMapper;
 import be.yorian.emailcampaignservice.model.EmailTemplate;
+import be.yorian.emailcampaignservice.repository.EmailCampaignRepository;
 import be.yorian.emailcampaignservice.repository.EmailTemplateRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
@@ -13,8 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static be.yorian.emailcampaignservice.mapper.EmailTemplateMapper.mapToEmailTemplateDTO;
 import static be.yorian.emailcampaignservice.mapper.EmailTemplateMapper.mapToEmailTemplate;
+import static be.yorian.emailcampaignservice.mapper.EmailTemplateMapper.mapToEmailTemplateDTO;
 import static be.yorian.emailcampaignservice.mapper.EmailTemplateMapper.updateEmailTemplateFromDTO;
 
 @Service
@@ -24,10 +25,13 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     private static final Logger log = LoggerFactory.getLogger(EmailTemplateServiceImpl.class);
     private static final String EMAILTEMPLATE_NOT_FOUND = "EmailTemplate not found with id: ";
     private final EmailTemplateRepository emailTemplateRepository;
+    private final EmailCampaignRepository emailCampaignRepository;
 
     @Autowired
-    public EmailTemplateServiceImpl(EmailTemplateRepository emailTemplateRepository) {
+    public EmailTemplateServiceImpl(EmailTemplateRepository emailTemplateRepository,
+                                    EmailCampaignRepository emailCampaignRepository) {
         this.emailTemplateRepository = emailTemplateRepository;
+        this.emailCampaignRepository = emailCampaignRepository;
     }
 
     @Override
@@ -63,8 +67,19 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     }
 
     @Override
-    public List<EmailTemplateDTO> getUpdatedTemplates() {
+    public List<EmailTemplateDTO> getUpdatedEmailTemplates() {
         return emailTemplateRepository.findAllByUpdatedAtIsAfterCreatedAt().stream()
+                .map(EmailTemplateMapper::mapToEmailTemplateDTO)
+                .toList();
+    }
+
+    @Override
+    public List<EmailTemplateDTO> getUnusedEmailTemplates() {
+        List<Long> emailTemplateIds = emailCampaignRepository.findAllByTemplateIsNotNull().stream()
+                .map(ec -> ec.getTemplate().getId())
+                .toList();
+        return emailTemplateRepository.findAll().stream()
+                .filter(et -> !emailTemplateIds.contains(et.getId()))
                 .map(EmailTemplateMapper::mapToEmailTemplateDTO)
                 .toList();
     }

@@ -16,6 +16,8 @@ public interface EmailTemplateController {
 
     void deleteEmailTemplate(Long id);
 
-    ResponseEntity<List<EmailTemplateDTO>> getUpdatedTemplates();
+    ResponseEntity<List<EmailTemplateDTO>> getUpdatedEmailTemplates();
+
+    ResponseEntity<List<EmailTemplateDTO>> getUnusedEmailTemplates();
 
 }

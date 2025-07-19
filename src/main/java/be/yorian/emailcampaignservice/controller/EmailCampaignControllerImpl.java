@@ -43,5 +43,4 @@ public class EmailCampaignControllerImpl implements EmailCampaignController {
         return ResponseEntity.ok(emailCampaignService.getEmailCampaignById(id));
     }
 
-
 }

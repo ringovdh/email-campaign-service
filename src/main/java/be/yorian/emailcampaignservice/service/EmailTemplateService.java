@@ -14,5 +14,7 @@ public interface EmailTemplateService {
 
     void deleteEmailTemplate(Long id);
 
-    List<EmailTemplateDTO> getUpdatedTemplates();
+    List<EmailTemplateDTO> getUpdatedEmailTemplates();
+
+    List<EmailTemplateDTO> getUnusedEmailTemplates();
 }

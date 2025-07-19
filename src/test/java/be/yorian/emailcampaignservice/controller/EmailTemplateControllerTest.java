@@ -12,7 +12,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import static be.yorian.emailcampaignservice.mother.EmailTemplateMother.invalidUpdatedEmailTemplateDTO;
@@ -46,6 +45,8 @@ class EmailTemplateControllerTest extends BaseControllerTest {
     private static final String EMAIL_TEMPLATE_BASE_URL = "/email-templates";
     private static final String EMAIL_TEMPLATE_BY_ID_URL = EMAIL_TEMPLATE_BASE_URL + "/{templateId}";
     private static final String GET_EMAIL_TEMPLATE_UPDATED_URL = EMAIL_TEMPLATE_BASE_URL + "/updated";
+    private static final String GET_EMAIL_TEMPLATE_UNUSED_URL = EMAIL_TEMPLATE_BASE_URL + "/unused";
+
     private LocalDateTime createdAt;
     private EmailTemplateDTO savedEmailTemplateDTO;
 
@@ -220,10 +221,10 @@ class EmailTemplateControllerTest extends BaseControllerTest {
 
     @Test
     @DisplayName("Get updated templates should return all updated templates")
-    void getUpdatedTemplates_shouldReturnAllUpdatedTemplates() throws Exception {
+    void getUpdatedTemplates_shouldReturnAllUpdatedEmailTemplates() throws Exception {
         LocalDateTime updatedAt = now().plusDays(1);
         EmailTemplateDTO updatedEmailTemplateDTO = updatedEmailTemplateDTO(createdAt, updatedAt);
-        when(emailTemplateService.getUpdatedTemplates()).thenReturn(List.of(updatedEmailTemplateDTO));
+        when(emailTemplateService.getUpdatedEmailTemplates()).thenReturn(List.of(updatedEmailTemplateDTO));
 
         String response = mockMvc.perform(get(GET_EMAIL_TEMPLATE_UPDATED_URL)
                                 .accept(MediaType.APPLICATION_JSON))
@@ -232,13 +233,33 @@ class EmailTemplateControllerTest extends BaseControllerTest {
                         .getResponse()
                         .getContentAsString();
 
-        ArrayList<EmailTemplateDTO> responseDtos = objectMapper.readValue(response, new TypeReference<>() {});
+        List<EmailTemplateDTO> responseDtos = objectMapper.readValue(response, new TypeReference<>() {});
         assertThat(responseDtos).isNotNull();
         assertThat(responseDtos).hasSize(1);
 
         EmailTemplateDTO dto = responseDtos.getFirst();
         assertThat(dto.updatedAt()).isAfter(dto.createdAt());
         assertResponse(dto, updatedEmailTemplateDTO);
+    }
+
+    @Test
+    @DisplayName("Get templates not used in campaigns should return all unused templates")
+    void getTemplates_notUsedInCampaigns_shouldReturnUnusedTemplates() throws Exception {
+        when(emailTemplateService.getUnusedEmailTemplates()).thenReturn(List.of(savedEmailTemplateDTO));
+
+        String response = mockMvc.perform(get(GET_EMAIL_TEMPLATE_UNUSED_URL)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        List<EmailTemplateDTO> responseDtos = objectMapper.readValue(response, new TypeReference<>() {});
+        assertThat(responseDtos).isNotNull();
+        assertThat(responseDtos).hasSize(1);
+
+        EmailTemplateDTO dto = responseDtos.getFirst();
+        assertResponse(dto, savedEmailTemplateDTO);
     }
 
     private static void assertResponse(EmailTemplateDTO responseDto, EmailTemplateDTO expectedDTO) {

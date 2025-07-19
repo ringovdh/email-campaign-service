@@ -64,7 +64,13 @@ public class EmailTemplateControllerImpl implements EmailTemplateController {
 
     @Override
     @GetMapping("/updated")
-    public ResponseEntity<List<EmailTemplateDTO>> getUpdatedTemplates() {
-        return  ResponseEntity.ok(emailTemplateService.getUpdatedTemplates());
+    public ResponseEntity<List<EmailTemplateDTO>> getUpdatedEmailTemplates() {
+        return ResponseEntity.ok(emailTemplateService.getUpdatedEmailTemplates());
+    }
+
+    @Override
+    @GetMapping("/unused")
+    public ResponseEntity<List<EmailTemplateDTO>> getUnusedEmailTemplates() {
+        return ResponseEntity.ok(emailTemplateService.getUnusedEmailTemplates());
     }
 }
