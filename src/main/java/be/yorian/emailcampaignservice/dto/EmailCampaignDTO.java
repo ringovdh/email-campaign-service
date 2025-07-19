@@ -12,10 +12,10 @@ public record EmailCampaignDTO(
         Long id,
         @NotBlank(message = "Please provide a campaign name")
         String name,
-        @NotNull(message = "Please provide a template")
-        EmailTemplateDTO emailTemplate,
-        @NotEmpty(message = "Please provide at least one contact")
-        List<ContactDTO> contacts,
+        @NotNull(message = "Please provide a templateId")
+        Long emailTemplateId,
+        @NotEmpty(message = "Please provide at least one contactId")
+        List<Long> contactIds,
         EmailStatus status,
         @NotNull(message = "Please provide a schedule")
         LocalDateTime scheduledAt,
