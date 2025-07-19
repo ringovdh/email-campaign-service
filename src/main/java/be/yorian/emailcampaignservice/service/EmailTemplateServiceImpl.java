@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import static be.yorian.emailcampaignservice.mapper.EmailTemplateMapper.mapToEmailTemplateDTO;
 import static be.yorian.emailcampaignservice.mapper.EmailTemplateMapper.mapToEmailTemplate;
 import static be.yorian.emailcampaignservice.mapper.EmailTemplateMapper.updateEmailTemplateFromDTO;
-import static java.time.LocalDateTime.now;
 
 @Service
 @Transactional
