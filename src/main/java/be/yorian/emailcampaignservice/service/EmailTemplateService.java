@@ -11,6 +11,8 @@ public interface EmailTemplateService {
 
     EmailTemplateDTO getEmailTemplateById(Long id);
 
+    List<EmailTemplateDTO> getAllEmailTemplates();
+
     EmailTemplateDTO updateEmailTemplate(Long id, EmailTemplateDTO emailTemplate);
 
     void deleteEmailTemplate(Long id);
@@ -20,4 +22,5 @@ public interface EmailTemplateService {
     List<EmailTemplateDTO> getUnusedEmailTemplates();
 
     EmailTemplateStatisticsDTO getEmailTemplateStatistics(Long id);
+
 }

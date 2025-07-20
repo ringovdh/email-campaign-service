@@ -98,6 +98,23 @@ class EmailTemplateServiceImplTest {
     }
 
     @Test
+    @DisplayName("Get all EmailTemplates should return all EmailTemplates")
+    void getAllEmailTemplates_shouldReturnAllEmailTemplates() {
+        EmailTemplate savedEmailTemplate2 = newSavedEmailTemplate(createdAt);
+        savedEmailTemplate2.setId(2L);
+        List<EmailTemplate> emailTemplates = List.of(savedEmailTemplate, savedEmailTemplate2);
+
+        when(emailTemplateRepository.findAll()).thenReturn(emailTemplates);
+
+        List<EmailTemplateDTO> returnedEmailTemplates = emailTemplateService.getAllEmailTemplates();
+
+        assertThat(returnedEmailTemplates)
+                .hasSize(2)
+                .extracting(EmailTemplateDTO::id)
+                .containsExactlyInAnyOrder(savedEmailTemplate.getId(), savedEmailTemplate2.getId());
+    }
+
+    @Test
     @DisplayName("Update EmailTemplate should update and return updated EmailTemplate")
     void updateEmailTemplate_shouldUpdateEmailTemplate_returnUpdatedEmailTemplate() {
         LocalDateTime updatedAt = now().plusDays(1);

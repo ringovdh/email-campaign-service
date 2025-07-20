@@ -13,6 +13,8 @@ public interface EmailTemplateController {
 
     ResponseEntity<EmailTemplateDTO> getEmailTemplateById(Long id);
 
+    ResponseEntity<List<EmailTemplateDTO>> getAllEmailTemplates();
+
     ResponseEntity<EmailTemplateDTO> updateEmailTemplate(Long id, EmailTemplateDTO emailTemplateDTO);
 
     void deleteEmailTemplate(Long id);

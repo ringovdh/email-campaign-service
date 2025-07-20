@@ -54,6 +54,13 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<EmailTemplateDTO> getAllEmailTemplates() {
+        return emailTemplateRepository.findAll().stream()
+                .map(EmailTemplateMapper::mapToEmailTemplateDTO).toList();
+    }
+
+    @Override
     public EmailTemplateDTO updateEmailTemplate(Long id, EmailTemplateDTO updatedEmailTemplateDTO) {
         EmailTemplate emailTemplate = findTemplateById(id);
 

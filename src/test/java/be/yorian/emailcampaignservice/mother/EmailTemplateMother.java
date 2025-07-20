@@ -59,6 +59,17 @@ public class EmailTemplateMother {
                 null);
     }
 
+    public static EmailTemplateDTO savedEmailTemplateDTO2(LocalDateTime createdAt) {
+        return new EmailTemplateDTO(
+                10L,
+                "Other test email template",
+                "This is the another subject",
+                "Email <b>content</b> comes here.",
+                createdAt,
+                null);
+    }
+
+
     public static EmailTemplateDTO updatedEmailTemplateDTO(LocalDateTime createdAt, LocalDateTime updatedAt) {
         return new EmailTemplateDTO(
                 5L,

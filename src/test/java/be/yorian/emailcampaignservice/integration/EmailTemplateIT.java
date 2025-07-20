@@ -30,6 +30,32 @@ class EmailTemplateIT extends BaseIT {
             INSERT INTO EMAIL_TEMPLATE(id, name, subject, body_html, created_at, updated_at)
                                 VALUES (2, 'Test updated email template', 'test subject', 'Hello Prompto', '2025-07-19T10:00:00', '2025-07-21T10:00:00');"""
     )
+    @DisplayName("Get all emailTemplates should return a list of emailTemplates")
+    @Transactional
+    void getAllEmailTemplates_shouldReturnListOfDto() throws Exception {
+        String response = mockMvc.perform(get(EMAIL_TEMPLATE_BASE_URL)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        List<EmailTemplateDTO> responseDtos = objectMapper.readValue(response, new TypeReference<>() {});
+
+        assertThat(responseDtos)
+                .hasSize(2)
+                .extracting(EmailTemplateDTO::id)
+                .containsExactlyInAnyOrder(1L, 2L);
+    }
+
+
+    @Test
+    @Sql(statements = """
+            INSERT INTO EMAIL_TEMPLATE(id, name, subject, body_html, created_at, updated_at)
+                    VALUES (1, 'Test email template', 'test subject', 'Hello Prompto', '2025-07-19T10:00:00', '2025-07-19T10:00:00');
+            INSERT INTO EMAIL_TEMPLATE(id, name, subject, body_html, created_at, updated_at)
+                                VALUES (2, 'Test updated email template', 'test subject', 'Hello Prompto', '2025-07-19T10:00:00', '2025-07-21T10:00:00');"""
+    )
     @DisplayName("Get all updated emailTemplates should return all updated emailTemplates")
     @Transactional
     void getAllUpdatedEmailTemplates_shouldReturnListOfDto() throws Exception {

@@ -19,6 +19,7 @@ import static be.yorian.emailcampaignservice.mother.EmailTemplateMother.invalidU
 import static be.yorian.emailcampaignservice.mother.EmailTemplateMother.newEmailTemplateDTO;
 import static be.yorian.emailcampaignservice.mother.EmailTemplateMother.newInvalidEmailTemplateDTO;
 import static be.yorian.emailcampaignservice.mother.EmailTemplateMother.savedEmailTemplateDTO;
+import static be.yorian.emailcampaignservice.mother.EmailTemplateMother.savedEmailTemplateDTO2;
 import static be.yorian.emailcampaignservice.mother.EmailTemplateMother.updatedEmailTemplateDTO;
 import static java.time.LocalDateTime.now;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,7 +49,6 @@ class EmailTemplateControllerTest extends BaseControllerTest {
     private static final String GET_EMAIL_TEMPLATE_UPDATED_URL = EMAIL_TEMPLATE_BASE_URL + "/updated";
     private static final String GET_EMAIL_TEMPLATE_UNUSED_URL = EMAIL_TEMPLATE_BASE_URL + "/unused";
     private static final String GET_EMAIL_TEMPLATE_STATISTICS_URL = EMAIL_TEMPLATE_BASE_URL + "/{id}/statistics";
-
 
     private LocalDateTime createdAt;
     private EmailTemplateDTO savedEmailTemplateDTO;
@@ -130,6 +130,26 @@ class EmailTemplateControllerTest extends BaseControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorCode", is(404)))
                 .andExpect(jsonPath("$.message", is(errorMessage)));
+    }
+
+    @Test
+    @DisplayName("Get all EmailTemplates should return all EmailTemplates")
+    void getAllEmailTemplates_shouldReturnAllEmailTemplates() throws Exception {
+        EmailTemplateDTO savedEmailTemplateDTO2 = savedEmailTemplateDTO2(createdAt);
+        List<EmailTemplateDTO> emailTemplates = List.of(savedEmailTemplateDTO, savedEmailTemplateDTO2);
+
+        when(emailTemplateService.getAllEmailTemplates()).thenReturn(emailTemplates);
+
+        String response = mockMvc.perform(get(EMAIL_TEMPLATE_BASE_URL)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        List<EmailTemplateDTO> responseDtos = objectMapper.readValue(response, new TypeReference<>() {});
+
+        assertThat(responseDtos).containsExactlyInAnyOrderElementsOf(emailTemplates);
     }
 
     @Test

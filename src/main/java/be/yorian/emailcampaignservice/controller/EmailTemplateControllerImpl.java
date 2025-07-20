@@ -49,6 +49,12 @@ public class EmailTemplateControllerImpl implements EmailTemplateController {
     }
 
     @Override
+    @GetMapping
+    public ResponseEntity<List<EmailTemplateDTO>> getAllEmailTemplates() {
+        return ResponseEntity.ok(emailTemplateService.getAllEmailTemplates());
+    }
+
+    @Override
     @PutMapping("/{id}")
     public ResponseEntity<EmailTemplateDTO> updateEmailTemplate(
             @PathVariable Long id,
