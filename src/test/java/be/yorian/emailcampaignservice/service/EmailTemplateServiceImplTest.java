@@ -2,7 +2,7 @@ package be.yorian.emailcampaignservice.service;
 
 import be.yorian.emailcampaignservice.dto.EmailTemplateDTO;
 import be.yorian.emailcampaignservice.dto.EmailTemplateStatisticsDTO;
-import be.yorian.emailcampaignservice.enums.EmailStatus;
+import be.yorian.emailcampaignservice.enums.EmailCampaignStatus;
 import be.yorian.emailcampaignservice.model.Contact;
 import be.yorian.emailcampaignservice.model.EmailCampaign;
 import be.yorian.emailcampaignservice.model.EmailTemplate;
@@ -218,7 +218,7 @@ class EmailTemplateServiceImplTest {
         EmailCampaign draftCampaign = newSavedEmailCampaign(createdAt, List.of());
         EmailCampaign sentCampaign = newSavedEmailCampaign(createdAt, contacts);
         sentCampaign.setId(3L);
-        sentCampaign.setStatus(EmailStatus.SENT);
+        sentCampaign.setStatus(EmailCampaignStatus.SENT);
 
         when(emailCampaignRepository.findAllByTemplateId(templateId)).thenReturn(List.of(draftCampaign, sentCampaign));
         EmailTemplateStatisticsDTO statistics = emailTemplateService.getEmailTemplateStatistics(templateId);

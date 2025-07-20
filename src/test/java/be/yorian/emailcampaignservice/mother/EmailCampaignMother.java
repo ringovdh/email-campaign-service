@@ -1,7 +1,7 @@
 package be.yorian.emailcampaignservice.mother;
 
 import be.yorian.emailcampaignservice.dto.EmailCampaignDTO;
-import be.yorian.emailcampaignservice.enums.EmailStatus;
+import be.yorian.emailcampaignservice.enums.EmailCampaignStatus;
 import be.yorian.emailcampaignservice.model.Contact;
 import be.yorian.emailcampaignservice.model.EmailCampaign;
 
@@ -19,13 +19,20 @@ public class EmailCampaignMother {
         emailCampaign.setTemplate(newSavedEmailTemplate(now()));
         emailCampaign.setContacts(contacts);
         emailCampaign.setScheduledAt(createdAt.plusDays(5));
-        emailCampaign.setStatus(EmailStatus.DRAFT);
+        emailCampaign.setStatus(EmailCampaignStatus.DRAFT);
         return emailCampaign;
     }
 
     public static EmailCampaign newSavedEmailCampaign(LocalDateTime createdAt, List<Contact> contacts) {
         EmailCampaign savedEmailCampaign = newEmailCampaign(createdAt, contacts);
         savedEmailCampaign.setId(1L);
+        savedEmailCampaign.setCreatedAt(createdAt);
+        return savedEmailCampaign;
+    }
+
+    public static EmailCampaign newSavedEmailCampaign2(LocalDateTime createdAt, List<Contact> contacts) {
+        EmailCampaign savedEmailCampaign = newEmailCampaign(createdAt, contacts);
+        savedEmailCampaign.setId(2L);
         savedEmailCampaign.setCreatedAt(createdAt);
         return savedEmailCampaign;
     }
@@ -62,7 +69,20 @@ public class EmailCampaignMother {
                 "Test email Campaign",
                 1L,
                 contacts,
-                EmailStatus.DRAFT,
+                EmailCampaignStatus.DRAFT,
+                createdAt.plusDays(5),
+                createdAt,
+                null
+        );
+    }
+
+    public static EmailCampaignDTO savedEmailCampaignDTO2(LocalDateTime createdAt, List<Long> contacts) {
+        return new EmailCampaignDTO(
+                5L,
+                "Other test email Campaign",
+                1L,
+                contacts,
+                EmailCampaignStatus.DRAFT,
                 createdAt.plusDays(5),
                 createdAt,
                 null

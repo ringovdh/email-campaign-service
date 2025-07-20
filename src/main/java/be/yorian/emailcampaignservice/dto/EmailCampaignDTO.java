@@ -1,6 +1,6 @@
 package be.yorian.emailcampaignservice.dto;
 
-import be.yorian.emailcampaignservice.enums.EmailStatus;
+import be.yorian.emailcampaignservice.enums.EmailCampaignStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -16,7 +16,7 @@ public record EmailCampaignDTO(
         Long emailTemplateId,
         @NotEmpty(message = "Please provide at least one contactId")
         List<Long> contactIds,
-        EmailStatus status,
+        EmailCampaignStatus status,
         @NotNull(message = "Please provide a schedule")
         LocalDateTime scheduledAt,
         LocalDateTime createdAt,

@@ -1,6 +1,6 @@
 package be.yorian.emailcampaignservice.model;
 
-import be.yorian.emailcampaignservice.enums.EmailStatus;
+import be.yorian.emailcampaignservice.enums.EmailCampaignStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -31,7 +31,7 @@ public class EmailCampaign extends  BaseClass {
     private List<Contact> contacts;
 
     @Enumerated(EnumType.STRING)
-    private EmailStatus status;
+    private EmailCampaignStatus status;
 
     @NotNull
     private LocalDateTime scheduledAt;
@@ -61,11 +61,11 @@ public class EmailCampaign extends  BaseClass {
         this.contacts = contacts;
     }
 
-    public EmailStatus getStatus() {
+    public EmailCampaignStatus getStatus() {
         return status;
     }
 
-    public void setStatus(EmailStatus status) {
+    public void setStatus(EmailCampaignStatus status) {
         this.status = status;
     }
 

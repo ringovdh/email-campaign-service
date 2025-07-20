@@ -23,11 +23,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static be.yorian.emailcampaignservice.enums.EmailStatus.DRAFT;
+import static be.yorian.emailcampaignservice.enums.EmailCampaignStatus.DRAFT;
 import static be.yorian.emailcampaignservice.mother.ContactMother.savedContactA;
 import static be.yorian.emailcampaignservice.mother.ContactMother.savedContactB;
 import static be.yorian.emailcampaignservice.mother.EmailCampaignMother.newEmailCampaignDTO;
 import static be.yorian.emailcampaignservice.mother.EmailCampaignMother.newSavedEmailCampaign;
+import static be.yorian.emailcampaignservice.mother.EmailCampaignMother.newSavedEmailCampaign2;
 import static be.yorian.emailcampaignservice.mother.EmailCampaignStatisticsMother.newSavedEmailCampaignStatistics;
 import static be.yorian.emailcampaignservice.mother.EmailTemplateMother.newSavedEmailTemplate;
 import static java.time.LocalDateTime.now;
@@ -117,6 +118,24 @@ class EmailCampaignServiceTest {
     }
 
     @Test
+    @DisplayName("Get all EmailCampaigns should return a list of EmailCampaigns")
+    void getAllEmailCampaigns_shouldReturnListOfEmailCampaigns() {
+        EmailCampaign emailCampaign1 = newSavedEmailCampaign(createdAt, List.of(contactA, contactB));
+        EmailCampaign emailCampaign2 = newSavedEmailCampaign2(createdAt, List.of(contactA));
+        List<EmailCampaign> emailCampaigns = List.of(
+                emailCampaign1, emailCampaign2);
+
+        when(emailCampaignRepository.findAll()).thenReturn(emailCampaigns);
+
+        List<EmailCampaignDTO> returnedEmailCampaigns = emailCampaignService.getAllEmailCampaigns();
+
+        assertThat(returnedEmailCampaigns)
+                .hasSize(2)
+                .extracting(EmailCampaignDTO::id)
+                .containsExactlyInAnyOrder(emailCampaign1.getId(), emailCampaign2.getId());
+    }
+
+    @Test
     @DisplayName("Get EmailCampaign by id should return EmailCampaignDto")
     void getEmailCampaignById_shouldReturnEmailCampaign() {
         List<Contact> contacts = List.of(contactA);
@@ -171,7 +190,7 @@ class EmailCampaignServiceTest {
 
     @Test
     @DisplayName("Get EmailCampaignStatistics by emailCampaign id should return exception when not exists")
-    void getEmailCampaign_byEmailCampaignId_shouldThrowException_whenNotExists() {
+    void getEmailCampaignStatistics_byEmailCampaignId_shouldThrowException_whenNotExists() {
         Long unknownEmailCampaignId = 101L;
 
         when(emailCampaignStatisticsRepository.findByEmailCampaignId(unknownEmailCampaignId)).thenReturn(Optional.empty());

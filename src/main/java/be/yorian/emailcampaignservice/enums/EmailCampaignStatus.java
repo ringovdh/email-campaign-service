@@ -1,5 +1,5 @@
 package be.yorian.emailcampaignservice.enums;
 
-public enum EmailStatus {
+public enum EmailCampaignStatus {
     DRAFT, SENT
 }

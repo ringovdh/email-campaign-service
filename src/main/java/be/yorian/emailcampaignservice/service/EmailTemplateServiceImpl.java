@@ -2,7 +2,7 @@ package be.yorian.emailcampaignservice.service;
 
 import be.yorian.emailcampaignservice.dto.EmailTemplateDTO;
 import be.yorian.emailcampaignservice.dto.EmailTemplateStatisticsDTO;
-import be.yorian.emailcampaignservice.enums.EmailStatus;
+import be.yorian.emailcampaignservice.enums.EmailCampaignStatus;
 import be.yorian.emailcampaignservice.mapper.EmailTemplateMapper;
 import be.yorian.emailcampaignservice.model.EmailCampaign;
 import be.yorian.emailcampaignservice.model.EmailTemplate;
@@ -103,7 +103,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
         List<EmailCampaign> emailCampaigns = emailCampaignRepository.findAllByTemplateId(id);
         int numberOfCampaigns = emailCampaigns.size();
         int sentCount = emailCampaigns.stream()
-                .filter(c -> c.getStatus().equals(EmailStatus.SENT))
+                .filter(c -> c.getStatus().equals(EmailCampaignStatus.SENT))
                 .mapToInt(c -> c.getContacts().size()).sum();
 
         return new EmailTemplateStatisticsDTO(

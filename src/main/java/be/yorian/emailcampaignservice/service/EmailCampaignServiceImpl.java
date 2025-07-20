@@ -2,6 +2,7 @@ package be.yorian.emailcampaignservice.service;
 
 import be.yorian.emailcampaignservice.dto.EmailCampaignDTO;
 import be.yorian.emailcampaignservice.dto.EmailCampaignStatisticsDTO;
+import be.yorian.emailcampaignservice.mapper.EmailCampaignMapper;
 import be.yorian.emailcampaignservice.model.Contact;
 import be.yorian.emailcampaignservice.model.EmailCampaign;
 import be.yorian.emailcampaignservice.model.EmailCampaignStatistics;
@@ -13,13 +14,13 @@ import be.yorian.emailcampaignservice.repository.EmailTemplateRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static be.yorian.emailcampaignservice.enums.EmailStatus.DRAFT;
+import static be.yorian.emailcampaignservice.enums.EmailCampaignStatus.DRAFT;
 import static be.yorian.emailcampaignservice.mapper.EmailCampaignMapper.mapToEmailCampaign;
 import static be.yorian.emailcampaignservice.mapper.EmailCampaignMapper.mapToEmailCampaignDTO;
 import static be.yorian.emailcampaignservice.mapper.EmailCampaignStatisticsMapper.mapToEmailCampaignStatisticsDTO;
@@ -68,6 +69,14 @@ public class EmailCampaignServiceImpl implements EmailCampaignService {
                 new EntityNotFoundException("EmailCampaign not found with id: " + id));
         return mapToEmailCampaignDTO(emailCampaign);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EmailCampaignDTO> getAllEmailCampaigns() {
+        return emailCampaignRepository.findAll().stream()
+                .map(EmailCampaignMapper::mapToEmailCampaignDTO).toList();
+    }
+
 
     @Override
     @Transactional(readOnly = true)
