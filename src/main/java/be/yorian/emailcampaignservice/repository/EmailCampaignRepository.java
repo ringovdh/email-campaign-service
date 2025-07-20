@@ -12,4 +12,6 @@ public interface EmailCampaignRepository extends JpaRepository<EmailCampaign, Lo
 
     @Query("select c from EmailCampaign c where c.template is not null")
     List<EmailCampaign> findAllByTemplateIsNotNull();
+
+    List<EmailCampaign> findAllByTemplateId(Long id);
 }

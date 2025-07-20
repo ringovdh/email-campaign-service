@@ -31,12 +31,12 @@ public class EmailCampaignMother {
         return savedEmailCampaign;
     }
 
-    public static EmailCampaignDTO newEmailCampaignDTO(LocalDateTime createdAt) {
+    public static EmailCampaignDTO newEmailCampaignDTO(LocalDateTime createdAt, List<Long> contacts) {
         return new EmailCampaignDTO(
                 0L,
                 "Test email Campaign",
                 1L,
-                List.of(1L, 2L),
+                contacts,
                 null,
                 createdAt.plusDays(5),
                 null,
@@ -57,12 +57,12 @@ public class EmailCampaignMother {
         );
     }
 
-    public static EmailCampaignDTO savedEmailCampaignDTO(LocalDateTime createdAt) {
+    public static EmailCampaignDTO savedEmailCampaignDTO(LocalDateTime createdAt, List<Long> contacts) {
         return new EmailCampaignDTO(
                 1L,
                 "Test email Campaign",
                 1L,
-                List.of(1L, 2L),
+                contacts,
                 EmailStatus.DRAFT,
                 createdAt.plusDays(5),
                 createdAt,

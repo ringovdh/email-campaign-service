@@ -1,6 +1,8 @@
 package be.yorian.emailcampaignservice.service;
 
 import be.yorian.emailcampaignservice.dto.EmailTemplateDTO;
+import be.yorian.emailcampaignservice.dto.EmailTemplateStatisticsDto;
+import be.yorian.emailcampaignservice.enums.EmailStatus;
 import be.yorian.emailcampaignservice.model.EmailCampaign;
 import be.yorian.emailcampaignservice.model.EmailTemplate;
 import be.yorian.emailcampaignservice.repository.EmailCampaignRepository;
@@ -25,7 +27,6 @@ import static be.yorian.emailcampaignservice.mother.EmailTemplateMother.updatedE
 import static be.yorian.emailcampaignservice.mother.EmailTemplateMother.updatedEmailTemplateDTO;
 import static java.time.LocalDateTime.now;
 import static org.assertj.core.api.Assertions.assertThat;
-
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -160,6 +161,7 @@ class EmailTemplateServiceImplTest {
         when(emailTemplateRepository.findAllByUpdatedAtIsAfterCreatedAt()).thenReturn(List.of(updatedEmailTemplate));
 
         List<EmailTemplateDTO> returnedDtos = emailTemplateService.getUpdatedEmailTemplates();
+
         assertThat(returnedDtos).isNotNull();
         assertThat(returnedDtos).hasSize(1);
 
@@ -171,19 +173,38 @@ class EmailTemplateServiceImplTest {
     @Test
     @DisplayName("Get unused templates should return all unused templates")
     void getUnusedTemplates_shouldReturnAllUnusedEmailTemplates() {
-        EmailTemplate savedEmailTemplate1 = newSavedEmailTemplate(createdAt);
-        EmailTemplate savedEmailTemplate2 = newSavedEmailTemplate(createdAt);
-        savedEmailTemplate2.setId(5L);
-        EmailCampaign savedEmailCampaign = newSavedEmailCampaign(createdAt);
+        EmailCampaign emailCampaign = newSavedEmailCampaign(createdAt);
+        EmailTemplate usedEmailTemplate = newSavedEmailTemplate(createdAt);
+        EmailTemplate unusedEmailTemplate = newSavedEmailTemplate(createdAt);
+        unusedEmailTemplate.setId(5L);
 
-        when(emailCampaignRepository.findAllByTemplateIsNotNull()).thenReturn(List.of(savedEmailCampaign));
-        when(emailTemplateRepository.findAll()).thenReturn(List.of(savedEmailTemplate1, savedEmailTemplate2));
+        when(emailCampaignRepository.findAllByTemplateIsNotNull()).thenReturn(List.of(emailCampaign));
+        when(emailTemplateRepository.findAll()).thenReturn(List.of(usedEmailTemplate, unusedEmailTemplate));
 
         List<EmailTemplateDTO> returnedDtos = emailTemplateService.getUnusedEmailTemplates();
+
         assertThat(returnedDtos).isNotNull();
         assertThat(returnedDtos).hasSize(1);
 
         EmailTemplateDTO dto = returnedDtos.getFirst();
-        assertThat(dto.id()).isEqualTo(savedEmailTemplate2.getId());
+        assertThat(dto.id()).isEqualTo(unusedEmailTemplate.getId());
     }
+
+    @Test
+    @DisplayName("Get emailTemplateStatistics returns emailTemplateStatistics")
+    void getEmailTemplateStatistics_shouldReturnCorrectEmailTemplateStatistics() {
+        Long templateId = 1L;
+        EmailCampaign draftCampaign = newSavedEmailCampaign(createdAt);
+        EmailCampaign sentCampaign = newSavedEmailCampaign(createdAt);
+        sentCampaign.setId(3L);
+        sentCampaign.setStatus(EmailStatus.SENT);
+
+        when(emailCampaignRepository.findAllByTemplateId(templateId)).thenReturn(List.of(draftCampaign, sentCampaign));
+        EmailTemplateStatisticsDto statistics = emailTemplateService.getEmailTemplateStatistics(templateId);
+
+        assertThat(statistics.templateId()).isEqualTo(templateId);
+        assertThat(statistics.campaigns()).isEqualTo(2);
+        assertThat(statistics.emailsSend()).isEqualTo(sentCampaign.getContacts().size());
+    }
+
 }

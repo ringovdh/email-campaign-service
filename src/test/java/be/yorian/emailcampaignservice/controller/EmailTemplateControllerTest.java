@@ -1,6 +1,7 @@
 package be.yorian.emailcampaignservice.controller;
 
 import be.yorian.emailcampaignservice.dto.EmailTemplateDTO;
+import be.yorian.emailcampaignservice.dto.EmailTemplateStatisticsDto;
 import be.yorian.emailcampaignservice.service.EmailTemplateService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.EntityNotFoundException;
@@ -31,10 +32,10 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -46,6 +47,8 @@ class EmailTemplateControllerTest extends BaseControllerTest {
     private static final String EMAIL_TEMPLATE_BY_ID_URL = EMAIL_TEMPLATE_BASE_URL + "/{templateId}";
     private static final String GET_EMAIL_TEMPLATE_UPDATED_URL = EMAIL_TEMPLATE_BASE_URL + "/updated";
     private static final String GET_EMAIL_TEMPLATE_UNUSED_URL = EMAIL_TEMPLATE_BASE_URL + "/unused";
+    private static final String GET_EMAIL_TEMPLATE_STATISTICS_URL = EMAIL_TEMPLATE_BASE_URL + "/{id}/statistics";
+
 
     private LocalDateTime createdAt;
     private EmailTemplateDTO savedEmailTemplateDTO;
@@ -260,6 +263,25 @@ class EmailTemplateControllerTest extends BaseControllerTest {
 
         EmailTemplateDTO dto = responseDtos.getFirst();
         assertResponse(dto, savedEmailTemplateDTO);
+    }
+
+    @Test
+    @DisplayName("Get emailTemplateStatistics for emailTemplate returns emailTemplateStatisticsDto")
+    void getEmailTemplateStatistics_byEmailTemplateId_shouldReturnEmailTemplateStatistics() throws Exception {
+        when(emailTemplateService.getEmailTemplateStatistics(1L)).thenReturn(new EmailTemplateStatisticsDto(1L, 2, 2));
+
+        String response = mockMvc.perform(get(GET_EMAIL_TEMPLATE_STATISTICS_URL, 1L)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        EmailTemplateStatisticsDto responseDto = objectMapper.readValue(response, EmailTemplateStatisticsDto.class);
+
+        assertThat(responseDto).isNotNull();
+        assertThat(responseDto.campaigns()).isEqualTo(2);
+        assertThat(responseDto.emailsSend()).isEqualTo(2);
     }
 
     private static void assertResponse(EmailTemplateDTO responseDto, EmailTemplateDTO expectedDTO) {

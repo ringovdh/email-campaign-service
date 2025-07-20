@@ -3,6 +3,7 @@ package be.yorian.emailcampaignservice.controller;
 import be.yorian.emailcampaignservice.dto.EmailCampaignDTO;
 import be.yorian.emailcampaignservice.service.EmailCampaignService;
 import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -10,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static be.yorian.emailcampaignservice.mother.EmailCampaignMother.newEmailCampaignDTO;
 import static be.yorian.emailcampaignservice.mother.EmailCampaignMother.newInvalidEmailCampaignDTO;
@@ -32,17 +34,23 @@ class EmailCampaignControllerTest extends BaseControllerTest {
 
     private static final String EMAIL_CAMPAIGN_BASE_URL = "/email-campaigns";
     private static final String EMAIL_CAMPAIGN_BY_ID_URL = EMAIL_CAMPAIGN_BASE_URL + "/{campaignId}";
-
+    private LocalDateTime createdAt;
+    private List<Long> contactIds;
     @MockitoBean
     private EmailCampaignService emailCampaignService;
+
+    @BeforeEach
+    void setUp() {
+        createdAt = now();
+        contactIds = List.of(1L, 2L);
+    }
 
 
     @Test
     @DisplayName("Create EmailCampaign should return an EmailCampaignDTO")
     void createEmailCampaign_shouldReturnDTO() throws Exception {
-        LocalDateTime createdAt = now();
-        EmailCampaignDTO newEmailCampaignDTO = newEmailCampaignDTO(createdAt);
-        EmailCampaignDTO savedEmailCampaignDTO = savedEmailCampaignDTO(createdAt);
+        EmailCampaignDTO newEmailCampaignDTO = newEmailCampaignDTO(createdAt, contactIds);
+        EmailCampaignDTO savedEmailCampaignDTO = savedEmailCampaignDTO(createdAt, contactIds);
 
         when(emailCampaignService.createEmailCampaign(any(EmailCampaignDTO.class))).thenReturn(savedEmailCampaignDTO);
 
@@ -81,8 +89,7 @@ class EmailCampaignControllerTest extends BaseControllerTest {
 
     @Test
     void getEmailCampaignById_shouldReturnEmailCampaignDTO() throws Exception{
-        LocalDateTime createdAt = now();
-        EmailCampaignDTO savedEmailCampaignDTO = savedEmailCampaignDTO(createdAt);
+        EmailCampaignDTO savedEmailCampaignDTO = savedEmailCampaignDTO(createdAt, contactIds);
 
         when(emailCampaignService.getEmailCampaignById(savedEmailCampaignDTO.id())).thenReturn(savedEmailCampaignDTO);
 

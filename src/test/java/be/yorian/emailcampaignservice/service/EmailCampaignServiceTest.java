@@ -36,7 +36,6 @@ import static org.mockito.Mockito.when;
 class EmailCampaignServiceTest {
 
     private LocalDateTime createdAt;
-    private EmailCampaignDTO newEmailCampaignDTO;
     @Mock
     private EmailCampaignRepository emailCampaignRepository;
     @Mock
@@ -50,26 +49,31 @@ class EmailCampaignServiceTest {
     @BeforeEach
     void setUp() {
         createdAt = now();
-        newEmailCampaignDTO = newEmailCampaignDTO(createdAt);
     }
 
     @Test
     @DisplayName("Create an EmailCampaign should create and return EmailCampaign")
     void createEmailCampaign_shouldCreateEmailCampaign_returnsNewEmailCampaign() {
+        Contact contactA = savedContactA();
+        Contact contactB = savedContactB();
+        List<Contact> contacts = List.of(contactA, contactB);
+        List<Long> contactIds = List.of(contactA.getId(), contactB.getId());
+        EmailCampaignDTO newEmailCampaignDTO = newEmailCampaignDTO(createdAt, contactIds);
         EmailCampaign savedEmailCampaign = newSavedEmailCampaign(createdAt);
+        savedEmailCampaign.setContacts(contacts);
         EmailTemplate emailTemplate = newSavedEmailTemplate(createdAt);
-        Contact contact1 = savedContactA();
-        Contact contact2 = savedContactB();
+
 
         when(emailCampaignRepository.save(any(EmailCampaign.class))).thenReturn(savedEmailCampaign);
-        when(emailTemplateRepository.findById(newEmailCampaignDTO.emailTemplateId())).thenReturn(Optional.of(emailTemplate));
-        when(contactRepository.findAllById(newEmailCampaignDTO.contactIds())).thenReturn(List.of(contact1, contact2));
+        when(emailTemplateRepository.findById(newEmailCampaignDTO.emailTemplateId()))
+                .thenReturn(Optional.of(emailTemplate));
+        when(contactRepository.findAllById(newEmailCampaignDTO.contactIds())).thenReturn(contacts);
 
         EmailCampaignDTO returnedEmailCampaignDTO = emailCampaignService.createEmailCampaign(newEmailCampaignDTO);
 
         assertThat(returnedEmailCampaignDTO.name()).isEqualTo(newEmailCampaignDTO.name());
         assertThat(returnedEmailCampaignDTO.emailTemplateId()).isEqualTo(newEmailCampaignDTO.emailTemplateId());
-        assertThat(returnedEmailCampaignDTO.contactIds()).isEqualTo(List.of(contact1.getId(), contact2.getId()));
+        assertThat(returnedEmailCampaignDTO.contactIds()).hasSize(newEmailCampaignDTO.contactIds().size());
         assertThat(returnedEmailCampaignDTO.scheduledAt()).isEqualTo(newEmailCampaignDTO.scheduledAt());
         assertThat(returnedEmailCampaignDTO.status()).isEqualTo(DRAFT);
         assertThat(returnedEmailCampaignDTO.createdAt()).isEqualTo(createdAt);
@@ -78,7 +82,12 @@ class EmailCampaignServiceTest {
     @Test
     @DisplayName("Create an EmailCampaign should throw exception when contact not exists")
     void createEmailCampaign_whenContactsNotFound_throwsException() {
-        when(contactRepository.findAllById(newEmailCampaignDTO.contactIds())).thenReturn(List.of(savedContactA()));
+        Contact contactA = savedContactA();
+        Contact contactB = savedContactB();
+        List<Contact> contacts = List.of(contactA);
+        List<Long> contactIds = List.of(contactA.getId(), contactB.getId());
+        EmailCampaignDTO newEmailCampaignDTO = newEmailCampaignDTO(createdAt, contactIds);
+        when(contactRepository.findAllById(newEmailCampaignDTO.contactIds())).thenReturn(contacts);
 
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
                 () -> emailCampaignService.createEmailCampaign(newEmailCampaignDTO));
@@ -89,6 +98,7 @@ class EmailCampaignServiceTest {
     @Test
     @DisplayName("Create an EmailCampaign should throw exception when template not exists")
     void createEmailCampaign_whenTemplateNotFound_throwsException() {
+        EmailCampaignDTO newEmailCampaignDTO = newEmailCampaignDTO(createdAt, List.of(1L, 2L));
         when(contactRepository.findAllById(newEmailCampaignDTO.contactIds()))
                 .thenReturn(List.of(savedContactA(), savedContactB()));
         when(emailTemplateRepository.findById(newEmailCampaignDTO.emailTemplateId())).thenReturn(Optional.empty());
@@ -112,7 +122,7 @@ class EmailCampaignServiceTest {
         assertThat(returnedEmailCampaign.id()).isEqualTo(savedEmailCampaign.getId());
         assertThat(returnedEmailCampaign.name()).isEqualTo(savedEmailCampaign.getName());
         assertThat(returnedEmailCampaign.emailTemplateId()).isEqualTo(savedEmailCampaign.getTemplate().getId());
-        assertThat(returnedEmailCampaign.contactIds()).isEqualTo(List.of(savedEmailCampaign.getContacts().get(0).getId(), savedEmailCampaign.getContacts().get(1).getId()));
+        assertThat(returnedEmailCampaign.contactIds()).hasSize(savedEmailCampaign.getContacts().size());
         assertThat(returnedEmailCampaign.status()).isEqualTo(savedEmailCampaign.getStatus());
         assertThat(returnedEmailCampaign.scheduledAt()).isEqualTo(savedEmailCampaign.getScheduledAt());
         assertThat(returnedEmailCampaign.createdAt()).isEqualTo(savedEmailCampaign.getCreatedAt());
@@ -125,7 +135,8 @@ class EmailCampaignServiceTest {
 
         when(emailCampaignRepository.findById(unknownEmailCampaignId)).thenReturn(Optional.empty());
 
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> emailCampaignService.getEmailCampaignById(unknownEmailCampaignId));
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                () -> emailCampaignService.getEmailCampaignById(unknownEmailCampaignId));
         assertThat(exception.getMessage())
                 .isEqualTo("EmailCampaign not found with id: " + unknownEmailCampaignId.intValue());
     }

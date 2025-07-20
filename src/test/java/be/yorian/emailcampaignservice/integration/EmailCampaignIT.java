@@ -7,10 +7,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static be.yorian.emailcampaignservice.mother.EmailCampaignMother.newEmailCampaignDTO;
 import static java.time.LocalDateTime.now;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -32,7 +34,7 @@ public class EmailCampaignIT extends BaseIT {
     @DisplayName("Create an emailCampaign should create save and return emailCampaignDto")
     @Transactional
     void createEmailCampaign_shouldReturnDTO() throws Exception {
-        EmailCampaignDTO newEmailCampaignDTO = newEmailCampaignDTO(now());
+        EmailCampaignDTO newEmailCampaignDTO = newEmailCampaignDTO(now(), List.of(1L, 2L));
 
         String response = mockMvc.perform(post(EMAIL_CAMPAIGN_BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -42,7 +44,8 @@ public class EmailCampaignIT extends BaseIT {
                 .getResponse()
                 .getContentAsString();
         EmailCampaignDTO dto = objectMapper.readValue(response, EmailCampaignDTO.class);
-        assertNotEquals(0, dto.id());
+        assertThat(dto.id()).isNotEqualTo(0L);
+        assertThat(dto.contactIds()).hasSize(newEmailCampaignDTO.contactIds().size());
     }
 
     @Test
@@ -55,7 +58,7 @@ public class EmailCampaignIT extends BaseIT {
     @DisplayName("Create an emailCampaign should throw exception when contact not exists")
     @Transactional
     void createEmailCampaign_shouldThrowException_whenContactNotExists() throws Exception {
-        EmailCampaignDTO newEmailCampaignDTO = newEmailCampaignDTO(now());
+        EmailCampaignDTO newEmailCampaignDTO = newEmailCampaignDTO(now(),List.of(1L, 2L));
 
         mockMvc.perform(post(EMAIL_CAMPAIGN_BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -75,7 +78,7 @@ public class EmailCampaignIT extends BaseIT {
     @DisplayName("Create an emailCampaign should throw exception when template not exists")
     @Transactional
     void createEmailCampaign_shouldThrowException_whenTemplateNotExists() throws Exception {
-        EmailCampaignDTO newEmailCampaignDTO = newEmailCampaignDTO(now());
+        EmailCampaignDTO newEmailCampaignDTO = newEmailCampaignDTO(now(), List.of(1L, 2L));
 
         mockMvc.perform(post(EMAIL_CAMPAIGN_BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)

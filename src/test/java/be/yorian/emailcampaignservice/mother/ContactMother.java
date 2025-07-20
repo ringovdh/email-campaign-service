@@ -17,4 +17,5 @@ public class ContactMother {
         contact.setEmail("test.b@prompto.com");
         return contact;
     }
+
 }

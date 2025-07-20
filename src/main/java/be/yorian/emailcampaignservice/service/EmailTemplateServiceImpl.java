@@ -1,7 +1,10 @@
 package be.yorian.emailcampaignservice.service;
 
 import be.yorian.emailcampaignservice.dto.EmailTemplateDTO;
+import be.yorian.emailcampaignservice.dto.EmailTemplateStatisticsDto;
+import be.yorian.emailcampaignservice.enums.EmailStatus;
 import be.yorian.emailcampaignservice.mapper.EmailTemplateMapper;
+import be.yorian.emailcampaignservice.model.EmailCampaign;
 import be.yorian.emailcampaignservice.model.EmailTemplate;
 import be.yorian.emailcampaignservice.repository.EmailCampaignRepository;
 import be.yorian.emailcampaignservice.repository.EmailTemplateRepository;
@@ -67,6 +70,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EmailTemplateDTO> getUpdatedEmailTemplates() {
         return emailTemplateRepository.findAllByUpdatedAtIsAfterCreatedAt().stream()
                 .map(EmailTemplateMapper::mapToEmailTemplateDTO)
@@ -74,14 +78,31 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EmailTemplateDTO> getUnusedEmailTemplates() {
         List<Long> emailTemplateIds = emailCampaignRepository.findAllByTemplateIsNotNull().stream()
                 .map(ec -> ec.getTemplate().getId())
                 .toList();
+
         return emailTemplateRepository.findAll().stream()
                 .filter(et -> !emailTemplateIds.contains(et.getId()))
                 .map(EmailTemplateMapper::mapToEmailTemplateDTO)
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public EmailTemplateStatisticsDto getEmailTemplateStatistics(Long id) {
+        List<EmailCampaign> emailCampaigns = emailCampaignRepository.findAllByTemplateId(id);
+        int numberOfCampaigns = emailCampaigns.size();
+        int sentCount = emailCampaigns.stream()
+                .filter(c -> c.getStatus().equals(EmailStatus.SENT))
+                .mapToInt(c -> c.getContacts().size()).sum();
+
+        return new EmailTemplateStatisticsDto(
+                id,
+                numberOfCampaigns,
+                sentCount);
     }
 
     private EmailTemplate findTemplateById(Long id) {
