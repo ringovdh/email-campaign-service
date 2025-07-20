@@ -94,10 +94,6 @@ public class EmailCampaignIT extends BaseIT {
 
     @Test
     @Sql(statements = """
-            INSERT INTO CONTACT(id, email, created_at, updated_at)
-                    VALUES(1, 'test.a@prompto.com', '2025-07-19T10:00:00', null);
-            INSERT INTO CONTACT(id, email, created_at, updated_at)
-                    VALUES(2, 'test.b@prompto.com', '2025-07-19T10:00:00', null);
             INSERT INTO EMAIL_TEMPLATE(id, name, subject, body_html, created_at, updated_at)
                     VALUES (1, 'Test email template', 'test subject', 'Hello Prompto', '2025-07-19T10:00:00', null);
             INSERT INTO EMAIL_CAMPAIGN(id, name, template_id, status, scheduled_at, created_at, updated_at)
@@ -117,8 +113,12 @@ public class EmailCampaignIT extends BaseIT {
                 .getResponse()
                 .getContentAsString();
         EmailCampaignStatisticsDTO responseDto = objectMapper.readValue(response, EmailCampaignStatisticsDTO.class);
-        assertThat(responseDto.id()).isEqualTo(emailCampaignId);
+        assertThat(responseDto.id()).isEqualTo(1L);
+        assertThat(responseDto.campaignId()).isEqualTo(emailCampaignId);
         assertThat(responseDto.emailsSent()).isEqualTo(10);
+        assertThat(responseDto.emailsDelivered()).isEqualTo(5);
+        assertThat(responseDto.emailsOpened()).isEqualTo(3);
+        assertThat(responseDto.emailsClicked()).isEqualTo(1);
 
     }
 }
