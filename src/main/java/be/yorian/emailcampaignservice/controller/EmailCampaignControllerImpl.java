@@ -1,6 +1,7 @@
 package be.yorian.emailcampaignservice.controller;
 
 import be.yorian.emailcampaignservice.dto.EmailCampaignDTO;
+import be.yorian.emailcampaignservice.dto.EmailCampaignStatisticsDTO;
 import be.yorian.emailcampaignservice.service.EmailCampaignService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +42,12 @@ public class EmailCampaignControllerImpl implements EmailCampaignController {
     @GetMapping("/{id}")
     public ResponseEntity<EmailCampaignDTO> getEmailCampaignById(@PathVariable Long id) {
         return ResponseEntity.ok(emailCampaignService.getEmailCampaignById(id));
+    }
+
+    @Override
+    @GetMapping("/{id}/statistics")
+    public ResponseEntity<EmailCampaignStatisticsDTO> getEmailCampaignStatistics(@PathVariable Long id) {
+        return ResponseEntity.ok(emailCampaignService.getEmailCampaignStatistics(id));
     }
 
 }

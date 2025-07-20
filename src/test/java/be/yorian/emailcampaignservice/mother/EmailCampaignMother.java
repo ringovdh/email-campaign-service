@@ -2,30 +2,29 @@ package be.yorian.emailcampaignservice.mother;
 
 import be.yorian.emailcampaignservice.dto.EmailCampaignDTO;
 import be.yorian.emailcampaignservice.enums.EmailStatus;
+import be.yorian.emailcampaignservice.model.Contact;
 import be.yorian.emailcampaignservice.model.EmailCampaign;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static be.yorian.emailcampaignservice.mother.ContactMother.savedContactA;
-import static be.yorian.emailcampaignservice.mother.ContactMother.savedContactB;
 import static be.yorian.emailcampaignservice.mother.EmailTemplateMother.newSavedEmailTemplate;
 import static java.time.LocalDateTime.now;
 
 public class EmailCampaignMother {
 
-    public static EmailCampaign newEmailCampaign(LocalDateTime createdAt) {
+    public static EmailCampaign newEmailCampaign(LocalDateTime createdAt, List<Contact> contacts) {
         EmailCampaign emailCampaign = new EmailCampaign();
         emailCampaign.setName("Test email Campaign");
         emailCampaign.setTemplate(newSavedEmailTemplate(now()));
-        emailCampaign.setContacts(List.of(savedContactA(), savedContactB()));
+        emailCampaign.setContacts(contacts);
         emailCampaign.setScheduledAt(createdAt.plusDays(5));
         emailCampaign.setStatus(EmailStatus.DRAFT);
         return emailCampaign;
     }
 
-    public static EmailCampaign newSavedEmailCampaign(LocalDateTime createdAt) {
-        EmailCampaign savedEmailCampaign = newEmailCampaign(createdAt);
+    public static EmailCampaign newSavedEmailCampaign(LocalDateTime createdAt, List<Contact> contacts) {
+        EmailCampaign savedEmailCampaign = newEmailCampaign(createdAt, contacts);
         savedEmailCampaign.setId(1L);
         savedEmailCampaign.setCreatedAt(createdAt);
         return savedEmailCampaign;

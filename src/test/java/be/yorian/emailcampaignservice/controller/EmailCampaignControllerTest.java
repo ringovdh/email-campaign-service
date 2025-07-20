@@ -1,6 +1,7 @@
 package be.yorian.emailcampaignservice.controller;
 
 import be.yorian.emailcampaignservice.dto.EmailCampaignDTO;
+import be.yorian.emailcampaignservice.dto.EmailCampaignStatisticsDTO;
 import be.yorian.emailcampaignservice.service.EmailCampaignService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +17,7 @@ import java.util.List;
 import static be.yorian.emailcampaignservice.mother.EmailCampaignMother.newEmailCampaignDTO;
 import static be.yorian.emailcampaignservice.mother.EmailCampaignMother.newInvalidEmailCampaignDTO;
 import static be.yorian.emailcampaignservice.mother.EmailCampaignMother.savedEmailCampaignDTO;
+import static be.yorian.emailcampaignservice.mother.EmailCampaignStatisticsMother.savedEmailCampaignStatisticsDTO;
 import static java.time.LocalDateTime.now;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -34,6 +36,7 @@ class EmailCampaignControllerTest extends BaseControllerTest {
 
     private static final String EMAIL_CAMPAIGN_BASE_URL = "/email-campaigns";
     private static final String EMAIL_CAMPAIGN_BY_ID_URL = EMAIL_CAMPAIGN_BASE_URL + "/{campaignId}";
+    private static final String EMAIL_CAMPAIGN_STATISTICS_URL = EMAIL_CAMPAIGN_BASE_URL + "/{campaignId}/statistics";
     private LocalDateTime createdAt;
     private List<Long> contactIds;
     @MockitoBean
@@ -88,6 +91,7 @@ class EmailCampaignControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @DisplayName("Get EmailCampaign by id should return EmailCampaignDTO")
     void getEmailCampaignById_shouldReturnEmailCampaignDTO() throws Exception{
         EmailCampaignDTO savedEmailCampaignDTO = savedEmailCampaignDTO(createdAt, contactIds);
 
@@ -105,7 +109,7 @@ class EmailCampaignControllerTest extends BaseControllerTest {
     }
 
     @Test
-    @DisplayName("Get EmailCampaign by id should return exception not exists")
+    @DisplayName("Get EmailCampaign by id should return exception when not exists")
     void getEmailCampaignById_shouldReturnException_whenNotExists() throws Exception {
         Long unknownEmailCampaignId = 101L;
         String errorMessage = "EmailCampaign not found with id: " + unknownEmailCampaignId;
@@ -119,6 +123,47 @@ class EmailCampaignControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("$.errorCode", is(404)))
                 .andExpect(jsonPath("$.message", is(errorMessage)));
     }
+
+    @Test
+    @DisplayName("Get EmailCampaignStatistics should return EmailCampaignStatisticsDTO")
+    void getEmailCampaignStatistics_shouldReturnEmailCampaignStatisticsDTO() throws Exception {
+        Long emailCampaignId = 1L;
+        EmailCampaignStatisticsDTO emailCampaignStatisticsDTO = savedEmailCampaignStatisticsDTO(emailCampaignId);
+
+        when(emailCampaignService.getEmailCampaignStatistics(emailCampaignId)).thenReturn(emailCampaignStatisticsDTO);
+
+        String response = mockMvc.perform(get(EMAIL_CAMPAIGN_STATISTICS_URL, emailCampaignId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        EmailCampaignStatisticsDTO responseDto = objectMapper.readValue(response, EmailCampaignStatisticsDTO.class);
+
+        assertThat(responseDto.id()).isEqualTo(emailCampaignStatisticsDTO.id());
+        assertThat(responseDto.campaignId()).isEqualTo(emailCampaignId);
+        assertThat(responseDto.emailsSent()).isEqualTo(emailCampaignStatisticsDTO.emailsSent());
+        assertThat(responseDto.emailsDelivered()).isEqualTo(emailCampaignStatisticsDTO.emailsDelivered());
+        assertThat(responseDto.emailsOpened()).isEqualTo(emailCampaignStatisticsDTO.emailsOpened());
+        assertThat(responseDto.emailsClicked()).isEqualTo(emailCampaignStatisticsDTO.emailsClicked());
+    }
+
+    @Test
+    @DisplayName("Get EmailCampaignStatistics should return EmailCampaignStatisticsDTO")
+    void getEmailCampaignStatistics_shouldReturnException_whenEmailCampaignNotExists() throws Exception {
+        Long unknownEmailCampaignId = 101L;
+        String errorMessage = "EmailCampaignStatistics not found with emailCampaignId: " + unknownEmailCampaignId;
+
+        when(emailCampaignService.getEmailCampaignStatistics(unknownEmailCampaignId))
+                .thenThrow(new EntityNotFoundException(errorMessage));
+
+        mockMvc.perform(get(EMAIL_CAMPAIGN_STATISTICS_URL, unknownEmailCampaignId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorCode", is(404)))
+                .andExpect(jsonPath("$.message", is(errorMessage)));
+    }
+
 
     private static void assertResponse(EmailCampaignDTO responseDto, EmailCampaignDTO expectedDTO) {
         assertThat(responseDto.id()).isEqualTo(expectedDTO.id());

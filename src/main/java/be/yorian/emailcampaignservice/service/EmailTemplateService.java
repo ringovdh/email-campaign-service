@@ -1,7 +1,7 @@
 package be.yorian.emailcampaignservice.service;
 
 import be.yorian.emailcampaignservice.dto.EmailTemplateDTO;
-import be.yorian.emailcampaignservice.dto.EmailTemplateStatisticsDto;
+import be.yorian.emailcampaignservice.dto.EmailTemplateStatisticsDTO;
 
 import java.util.List;
 
@@ -19,5 +19,5 @@ public interface EmailTemplateService {
 
     List<EmailTemplateDTO> getUnusedEmailTemplates();
 
-    EmailTemplateStatisticsDto getEmailTemplateStatistics(Long id);
+    EmailTemplateStatisticsDTO getEmailTemplateStatistics(Long id);
 }

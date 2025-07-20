@@ -1,7 +1,7 @@
 package be.yorian.emailcampaignservice.integration;
 
 import be.yorian.emailcampaignservice.dto.EmailTemplateDTO;
-import be.yorian.emailcampaignservice.dto.EmailTemplateStatisticsDto;
+import be.yorian.emailcampaignservice.dto.EmailTemplateStatisticsDTO;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -107,7 +107,7 @@ class EmailTemplateIT extends BaseIT {
                 .getResponse()
                 .getContentAsString();
 
-        EmailTemplateStatisticsDto responseDto = objectMapper.readValue(response, EmailTemplateStatisticsDto.class);
+        EmailTemplateStatisticsDTO responseDto = objectMapper.readValue(response, EmailTemplateStatisticsDTO.class);
 
         assertThat(responseDto).isNotNull();
         assertThat(responseDto.campaigns()).isEqualTo(2);

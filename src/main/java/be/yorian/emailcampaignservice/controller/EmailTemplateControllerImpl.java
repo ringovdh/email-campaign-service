@@ -1,7 +1,7 @@
 package be.yorian.emailcampaignservice.controller;
 
 import be.yorian.emailcampaignservice.dto.EmailTemplateDTO;
-import be.yorian.emailcampaignservice.dto.EmailTemplateStatisticsDto;
+import be.yorian.emailcampaignservice.dto.EmailTemplateStatisticsDTO;
 import be.yorian.emailcampaignservice.service.EmailTemplateService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -77,7 +77,7 @@ public class EmailTemplateControllerImpl implements EmailTemplateController {
 
     @Override
     @GetMapping("/{id}/statistics")
-    public ResponseEntity<EmailTemplateStatisticsDto> getEmailTemplateStatistics(@PathVariable Long id) {
+    public ResponseEntity<EmailTemplateStatisticsDTO> getEmailTemplateStatistics(@PathVariable Long id) {
         return ResponseEntity.ok(emailTemplateService.getEmailTemplateStatistics(id));
     }
 }

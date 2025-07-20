@@ -85,6 +85,6 @@ public class EmailCampaignIT extends BaseIT {
                         .content(objectMapper.writeValueAsString(newEmailCampaignDTO)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorCode", is(404)))
-                .andExpect(jsonPath("$.message", is("EmailTemplate not found with id: " + newEmailCampaignDTO.emailTemplateId().intValue())));
+                .andExpect(jsonPath("$.message", is("EmailTemplate not found with id: " + newEmailCampaignDTO.emailTemplateId())));
     }
 }

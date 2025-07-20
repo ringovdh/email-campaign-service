@@ -1,7 +1,7 @@
 package be.yorian.emailcampaignservice.controller;
 
 import be.yorian.emailcampaignservice.dto.EmailTemplateDTO;
-import be.yorian.emailcampaignservice.dto.EmailTemplateStatisticsDto;
+import be.yorian.emailcampaignservice.dto.EmailTemplateStatisticsDTO;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -21,6 +21,6 @@ public interface EmailTemplateController {
 
     ResponseEntity<List<EmailTemplateDTO>> getUnusedEmailTemplates();
 
-    ResponseEntity<EmailTemplateStatisticsDto> getEmailTemplateStatistics(Long id);
+    ResponseEntity<EmailTemplateStatisticsDTO> getEmailTemplateStatistics(Long id);
 
 }

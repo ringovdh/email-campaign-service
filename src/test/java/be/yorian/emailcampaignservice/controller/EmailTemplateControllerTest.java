@@ -1,7 +1,7 @@
 package be.yorian.emailcampaignservice.controller;
 
 import be.yorian.emailcampaignservice.dto.EmailTemplateDTO;
-import be.yorian.emailcampaignservice.dto.EmailTemplateStatisticsDto;
+import be.yorian.emailcampaignservice.dto.EmailTemplateStatisticsDTO;
 import be.yorian.emailcampaignservice.service.EmailTemplateService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.EntityNotFoundException;
@@ -268,7 +268,7 @@ class EmailTemplateControllerTest extends BaseControllerTest {
     @Test
     @DisplayName("Get emailTemplateStatistics for emailTemplate returns emailTemplateStatisticsDto")
     void getEmailTemplateStatistics_byEmailTemplateId_shouldReturnEmailTemplateStatistics() throws Exception {
-        when(emailTemplateService.getEmailTemplateStatistics(1L)).thenReturn(new EmailTemplateStatisticsDto(1L, 2, 2));
+        when(emailTemplateService.getEmailTemplateStatistics(1L)).thenReturn(new EmailTemplateStatisticsDTO(1L, 2, 2));
 
         String response = mockMvc.perform(get(GET_EMAIL_TEMPLATE_STATISTICS_URL, 1L)
                         .accept(MediaType.APPLICATION_JSON))
@@ -277,7 +277,7 @@ class EmailTemplateControllerTest extends BaseControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        EmailTemplateStatisticsDto responseDto = objectMapper.readValue(response, EmailTemplateStatisticsDto.class);
+        EmailTemplateStatisticsDTO responseDto = objectMapper.readValue(response, EmailTemplateStatisticsDTO.class);
 
         assertThat(responseDto).isNotNull();
         assertThat(responseDto.campaigns()).isEqualTo(2);
