@@ -89,4 +89,18 @@ public class EmailCampaignMother {
         );
     }
 
+    public static EmailCampaignDTO updatedEmailCampaignDTO(LocalDateTime createdAt, List<Long> contacts) {
+        return new EmailCampaignDTO(
+                1L,
+                "Test email Campaign",
+                1L,
+                contacts,
+                EmailCampaignStatus.DRAFT,
+                createdAt.plusDays(5),
+                createdAt,
+                now()
+        );
+    }
+
+
 }

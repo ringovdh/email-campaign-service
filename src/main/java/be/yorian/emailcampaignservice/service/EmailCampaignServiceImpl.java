@@ -23,6 +23,7 @@ import java.util.List;
 import static be.yorian.emailcampaignservice.enums.EmailCampaignStatus.DRAFT;
 import static be.yorian.emailcampaignservice.mapper.EmailCampaignMapper.mapToEmailCampaign;
 import static be.yorian.emailcampaignservice.mapper.EmailCampaignMapper.mapToEmailCampaignDTO;
+import static be.yorian.emailcampaignservice.mapper.EmailCampaignMapper.updateEmailCampaignFromDTO;
 import static be.yorian.emailcampaignservice.mapper.EmailCampaignStatisticsMapper.mapToEmailCampaignStatisticsDTO;
 
 @Service
@@ -30,7 +31,7 @@ import static be.yorian.emailcampaignservice.mapper.EmailCampaignStatisticsMappe
 public class EmailCampaignServiceImpl implements EmailCampaignService {
 
     private static final Logger log = LoggerFactory.getLogger(EmailCampaignServiceImpl.class);
-
+    private static final String EMAILCAMPAIGN_NOT_FOUND = "EmailCampaign not found with id: ";
     private final EmailCampaignRepository emailCampaignRepository;
     private final ContactRepository contactRepository;
     private final EmailTemplateRepository emailTemplateRepository;
@@ -51,11 +52,11 @@ public class EmailCampaignServiceImpl implements EmailCampaignService {
     @Override
     public EmailCampaignDTO createEmailCampaign(EmailCampaignDTO emailCampaignDTO) {
         EmailCampaign emailCampaign = mapToEmailCampaign(emailCampaignDTO);
-        List<Contact> contacts = handleContacts(emailCampaignDTO.contactIds());
-        emailCampaign.setContacts(contacts);
+        emailCampaign.setContacts(handleContacts(emailCampaignDTO.contactIds()));
         emailCampaign.setTemplate(handleEmailTemplate(emailCampaignDTO.emailTemplateId()));
         emailCampaign.setStatus(DRAFT);
         EmailCampaign savedEmailCampaign = emailCampaignRepository.save(emailCampaign);
+        createEmailCampaignStatistics(savedEmailCampaign);
 
         log.info("Create EmailCampaign with id: {}", savedEmailCampaign.getId());
 
@@ -65,8 +66,7 @@ public class EmailCampaignServiceImpl implements EmailCampaignService {
     @Override
     @Transactional(readOnly = true)
     public EmailCampaignDTO getEmailCampaignById(Long id) {
-        EmailCampaign emailCampaign = emailCampaignRepository.findById(id).orElseThrow(() ->
-                new EntityNotFoundException("EmailCampaign not found with id: " + id));
+        EmailCampaign emailCampaign = findEmailCampaignById(id);
         return mapToEmailCampaignDTO(emailCampaign);
     }
 
@@ -77,6 +77,24 @@ public class EmailCampaignServiceImpl implements EmailCampaignService {
                 .map(EmailCampaignMapper::mapToEmailCampaignDTO).toList();
     }
 
+    @Override
+    public EmailCampaignDTO updateEmailCampaign(Long id, EmailCampaignDTO updatedEmailCampaignDto) {
+        EmailCampaign emailCampaign = findEmailCampaignById(id);
+        updateEmailCampaignFromDTO(emailCampaign, updatedEmailCampaignDto);
+        emailCampaign.setContacts(handleContacts(updatedEmailCampaignDto.contactIds()));
+        emailCampaign.setTemplate(handleEmailTemplate(updatedEmailCampaignDto.emailTemplateId()));
+        log.info("Update EmailCampaign with id: {}", emailCampaign.getId());
+        return mapToEmailCampaignDTO(emailCampaign);
+    }
+
+    @Override
+    public void deleteEmailCampaign(Long id) {
+        EmailCampaign emailCampaign = findEmailCampaignById(id);
+        deleteEmailCampaignStatistics(id);
+
+        emailCampaignRepository.delete(emailCampaign);
+        log.info("Delete EmailCampaign with id: {}", id);
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -98,5 +116,22 @@ public class EmailCampaignServiceImpl implements EmailCampaignService {
             throw new EntityNotFoundException("Not all contacts were found");
         }
         return contacts;
+    }
+
+    private EmailCampaign findEmailCampaignById(Long id) {
+        return emailCampaignRepository.findById(id).orElseThrow(() ->
+                new EntityNotFoundException(EMAILCAMPAIGN_NOT_FOUND + id));
+    }
+
+    private void deleteEmailCampaignStatistics(Long id) {
+        emailCampaignStatisticsRepository.findByEmailCampaignId(id)
+                .ifPresent(emailCampaignStatisticsRepository::delete);
+        log.info("Delete EmailCampaignStatistics with id: {}", id);
+    }
+
+    private void createEmailCampaignStatistics(EmailCampaign savedEmailCampaign) {
+        EmailCampaignStatistics emailCampaignStatistics = new EmailCampaignStatistics(savedEmailCampaign);
+        emailCampaignStatisticsRepository.save(emailCampaignStatistics);
+        log.info("Create EmailCampaignStatistics with id: {}", emailCampaignStatistics.getId());
     }
 }

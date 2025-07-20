@@ -49,7 +49,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     @Override
     @Transactional(readOnly = true)
     public EmailTemplateDTO getEmailTemplateById(Long id) {
-        EmailTemplate template = findTemplateById(id);
+        EmailTemplate template = findEmailTemplateById(id);
         return mapToEmailTemplateDTO(template);
     }
 
@@ -62,7 +62,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 
     @Override
     public EmailTemplateDTO updateEmailTemplate(Long id, EmailTemplateDTO updatedEmailTemplateDTO) {
-        EmailTemplate emailTemplate = findTemplateById(id);
+        EmailTemplate emailTemplate = findEmailTemplateById(id);
 
         updateEmailTemplateFromDTO(emailTemplate, updatedEmailTemplateDTO);
         log.info("Update EmailTemplate with id: {}", emailTemplate.getId());
@@ -72,7 +72,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 
     @Override
     public void deleteEmailTemplate(Long id) {
-        emailTemplateRepository.delete(findTemplateById(id));
+        emailTemplateRepository.delete(findEmailTemplateById(id));
         log.info("Delete EmailTemplate with id: {}", id);
     }
 
@@ -112,7 +112,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
                 sentCount);
     }
 
-    private EmailTemplate findTemplateById(Long id) {
+    private EmailTemplate findEmailTemplateById(Long id) {
         return emailTemplateRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(EMAILTEMPLATE_NOT_FOUND + id));
     }

@@ -6,6 +6,8 @@ import be.yorian.emailcampaignservice.model.EmailCampaign;
 
 import java.util.List;
 
+import static java.time.LocalDateTime.now;
+
 public final class EmailCampaignMapper {
 
     public static EmailCampaign mapToEmailCampaign(EmailCampaignDTO emailCampaignDTO) {
@@ -33,6 +35,18 @@ public final class EmailCampaignMapper {
         }
         return null;
     }
+
+    public static void updateEmailCampaignFromDTO(EmailCampaign emailCampaign, EmailCampaignDTO updatedEmailCampaignDTO ) {
+        if (emailCampaign == null || updatedEmailCampaignDTO == null) {
+            return;
+        }
+        emailCampaign.setName(updatedEmailCampaignDTO.name());
+        emailCampaign.setStatus(updatedEmailCampaignDTO.status());
+        emailCampaign.setScheduledAt(updatedEmailCampaignDTO.scheduledAt());
+        emailCampaign.setCreatedAt(updatedEmailCampaignDTO.createdAt());
+        emailCampaign.setUpdatedAt(now());
+    }
+
 
     private static List<Long> mapToContactIDs(List<Contact> contacts) {
         if (contacts != null) {

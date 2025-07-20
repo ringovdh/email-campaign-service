@@ -14,5 +14,9 @@ public interface EmailCampaignController {
 
     ResponseEntity<List<EmailCampaignDTO>> getAllEmailCampaigns();
 
+    ResponseEntity<EmailCampaignDTO> updateEmailCampaign(Long id, EmailCampaignDTO emailCampaignDTO);
+
+    void deleteEmailCampaign(Long id);
+
     ResponseEntity<EmailCampaignStatisticsDTO> getEmailCampaignStatistics(Long id);
 }

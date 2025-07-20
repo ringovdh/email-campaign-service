@@ -11,7 +11,12 @@ public interface EmailCampaignService {
 
     EmailCampaignDTO getEmailCampaignById(Long id);
 
+    List<EmailCampaignDTO> getAllEmailCampaigns();
+
+    EmailCampaignDTO updateEmailCampaign(Long id, EmailCampaignDTO updatedEmailCampaignDTO);
+
+    void deleteEmailCampaign(Long id);
+
     EmailCampaignStatisticsDTO getEmailCampaignStatistics(Long id);
 
-    List<EmailCampaignDTO> getAllEmailCampaigns();
 }
