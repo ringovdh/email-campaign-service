@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/email-campaigns")
@@ -42,6 +43,12 @@ public class EmailCampaignControllerImpl implements EmailCampaignController {
     @GetMapping("/{id}")
     public ResponseEntity<EmailCampaignDTO> getEmailCampaignById(@PathVariable Long id) {
         return ResponseEntity.ok(emailCampaignService.getEmailCampaignById(id));
+    }
+
+    @Override
+    @GetMapping
+    public ResponseEntity<List<EmailCampaignDTO>> getAllEmailCampaigns() {
+        return ResponseEntity.ok(emailCampaignService.getAllEmailCampaigns());
     }
 
     @Override

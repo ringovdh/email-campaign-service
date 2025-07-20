@@ -3,6 +3,7 @@ package be.yorian.emailcampaignservice.controller;
 import be.yorian.emailcampaignservice.dto.EmailCampaignDTO;
 import be.yorian.emailcampaignservice.dto.EmailCampaignStatisticsDTO;
 import be.yorian.emailcampaignservice.service.EmailCampaignService;
+import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,6 +18,7 @@ import java.util.List;
 import static be.yorian.emailcampaignservice.mother.EmailCampaignMother.newEmailCampaignDTO;
 import static be.yorian.emailcampaignservice.mother.EmailCampaignMother.newInvalidEmailCampaignDTO;
 import static be.yorian.emailcampaignservice.mother.EmailCampaignMother.savedEmailCampaignDTO;
+import static be.yorian.emailcampaignservice.mother.EmailCampaignMother.savedEmailCampaignDTO2;
 import static be.yorian.emailcampaignservice.mother.EmailCampaignStatisticsMother.savedEmailCampaignStatisticsDTO;
 import static java.time.LocalDateTime.now;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -91,6 +93,26 @@ class EmailCampaignControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @DisplayName("Get all EmailCampaigns should return a list of EmailCampaignDTO")
+    void getEmailCampaigns_shouldReturnAllEmailCampaignDTO() throws Exception{
+        EmailCampaignDTO savedEmailCampaignDTO1 = savedEmailCampaignDTO(createdAt, contactIds);
+        EmailCampaignDTO savedEmailCampaignDTO2 = savedEmailCampaignDTO2(createdAt, contactIds);
+        List<EmailCampaignDTO> emailCampaignDtos = List.of(savedEmailCampaignDTO1, savedEmailCampaignDTO2);
+
+        when(emailCampaignService.getAllEmailCampaigns()).thenReturn(emailCampaignDtos);
+
+        String response = mockMvc.perform(get(EMAIL_CAMPAIGN_BASE_URL)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        List<EmailCampaignDTO> responseDtos = objectMapper.readValue(response, new TypeReference<>() {});
+
+        assertThat(responseDtos).containsExactlyInAnyOrderElementsOf(emailCampaignDtos);
+    }
+
+    @Test
     @DisplayName("Get EmailCampaign by id should return EmailCampaignDTO")
     void getEmailCampaignById_shouldReturnEmailCampaignDTO() throws Exception{
         EmailCampaignDTO savedEmailCampaignDTO = savedEmailCampaignDTO(createdAt, contactIds);
@@ -149,7 +171,7 @@ class EmailCampaignControllerTest extends BaseControllerTest {
     }
 
     @Test
-    @DisplayName("Get EmailCampaignStatistics should return EmailCampaignStatisticsDTO")
+    @DisplayName("Get EmailCampaignStatistics should return exception when EmailCampaignStatisticsDTO not exists")
     void getEmailCampaignStatistics_shouldReturnException_whenEmailCampaignNotExists() throws Exception {
         Long unknownEmailCampaignId = 101L;
         String errorMessage = "EmailCampaignStatistics not found with emailCampaignId: " + unknownEmailCampaignId;

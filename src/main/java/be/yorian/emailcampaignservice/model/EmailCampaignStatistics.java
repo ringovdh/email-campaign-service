@@ -6,7 +6,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "campaign_statistics")
+@Table(name = "email_campaign_statistics")
 public class EmailCampaignStatistics extends BaseClass {
 
     @OneToOne
@@ -16,6 +16,8 @@ public class EmailCampaignStatistics extends BaseClass {
     private long emailsDelivered;
     private long emailsOpened;
     private long emailsClicked;
+
+    public EmailCampaignStatistics() { }
 
     public EmailCampaignStatistics(EmailCampaign emailCampaign) {
         this.emailCampaign = emailCampaign;
