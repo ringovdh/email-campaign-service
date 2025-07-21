@@ -43,14 +43,14 @@ public class EmailTemplateControllerImpl implements EmailTemplateController {
             @ApiResponse(responseCode = "201", description = "Email template created successfully",
                     content = @Content(schema = @Schema(implementation = EmailTemplateDTO.class))),
             @ApiResponse(responseCode = "400", description = "Invalid request data provided",
-                    content = @Content(schema = @Schema()))
+                    content = @Content)
     })
     @PostMapping
     public ResponseEntity<EmailTemplateDTO> createEmailTemplate(@RequestBody @Valid EmailTemplateDTO emailTemplateDTO) {
         EmailTemplateDTO savedEmailTemplateDTO = emailTemplateService.createEmailTemplate(emailTemplateDTO);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
-                .path("/{id}")
+                .path("/{emailTemplateId}")
                 .buildAndExpand(savedEmailTemplateDTO.id())
                 .toUri();
         return ResponseEntity.created(location).body(savedEmailTemplateDTO);
@@ -62,11 +62,11 @@ public class EmailTemplateControllerImpl implements EmailTemplateController {
             @ApiResponse(responseCode = "200", description = "Email template found ",
                     content = @Content(schema = @Schema(implementation = EmailTemplateDTO.class))),
             @ApiResponse(responseCode = "404", description = "Email template not found with the given id",
-                    content = @Content(schema = @Schema()))
+                    content = @Content)
     })
-    @GetMapping("/{id}")
-    public ResponseEntity<EmailTemplateDTO> getEmailTemplateById(@PathVariable Long id) {
-        return ResponseEntity.ok(emailTemplateService.getEmailTemplateById(id));
+    @GetMapping("/{emailTemplateId}")
+    public ResponseEntity<EmailTemplateDTO> getEmailTemplateById(@PathVariable Long emailTemplateId) {
+        return ResponseEntity.ok(emailTemplateService.getEmailTemplateById(emailTemplateId));
     }
 
     @Override
@@ -89,11 +89,11 @@ public class EmailTemplateControllerImpl implements EmailTemplateController {
             @ApiResponse(responseCode = "404", description = "Email template not found with the given id",
                     content = @Content)
     })
-    @PutMapping("/{id}")
+    @PutMapping("/{emailTemplateId}")
     public ResponseEntity<EmailTemplateDTO> updateEmailTemplate(
-            @PathVariable Long id,
+            @PathVariable Long emailTemplateId,
             @RequestBody @Valid EmailTemplateDTO updatedEmailTemplateDTO) {
-        return ResponseEntity.ok(emailTemplateService.updateEmailTemplate(id, updatedEmailTemplateDTO));
+        return ResponseEntity.ok(emailTemplateService.updateEmailTemplate(emailTemplateId, updatedEmailTemplateDTO));
     }
 
     @Override
@@ -102,12 +102,14 @@ public class EmailTemplateControllerImpl implements EmailTemplateController {
             @ApiResponse(responseCode = "204", description = "Email template deleted successfully",
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Email template not found with the given id",
+                    content = @Content),
+            @ApiResponse(responseCode = "409", description = "Email template with the given id is not deleted because it is used in an email campaign.",
                     content = @Content)
     })
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{emailTemplateId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteEmailTemplate(@PathVariable Long id) {
-        emailTemplateService.deleteEmailTemplate(id);
+    public void deleteEmailTemplate(@PathVariable Long emailTemplateId) {
+        emailTemplateService.deleteEmailTemplate(emailTemplateId);
     }
 
     @Override
@@ -138,8 +140,8 @@ public class EmailTemplateControllerImpl implements EmailTemplateController {
             @ApiResponse(responseCode = "404", description = "Email template not found with the given id",
                     content = @Content)
     })
-    @GetMapping("/{id}/statistics")
-    public ResponseEntity<EmailTemplateStatisticsDTO> getEmailTemplateStatistics(@PathVariable Long id) {
-        return ResponseEntity.ok(emailTemplateService.getEmailTemplateStatistics(id));
+    @GetMapping("/{emailTemplateId}/statistics")
+    public ResponseEntity<EmailTemplateStatisticsDTO> getEmailTemplateStatistics(@PathVariable Long emailTemplateId) {
+        return ResponseEntity.ok(emailTemplateService.getEmailTemplateStatistics(emailTemplateId));
     }
 }

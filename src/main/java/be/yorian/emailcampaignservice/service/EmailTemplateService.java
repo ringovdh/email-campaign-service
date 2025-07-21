@@ -9,18 +9,18 @@ public interface EmailTemplateService {
 
     EmailTemplateDTO createEmailTemplate(EmailTemplateDTO emailTemplate);
 
-    EmailTemplateDTO getEmailTemplateById(Long id);
+    EmailTemplateDTO getEmailTemplateById(Long emailTemplateId);
 
     List<EmailTemplateDTO> getAllEmailTemplates();
 
-    EmailTemplateDTO updateEmailTemplate(Long id, EmailTemplateDTO emailTemplate);
+    EmailTemplateDTO updateEmailTemplate(Long emailTemplateId, EmailTemplateDTO emailTemplate);
 
-    void deleteEmailTemplate(Long id);
+    void deleteEmailTemplate(Long emailTemplateId);
 
     List<EmailTemplateDTO> getUpdatedEmailTemplates();
 
     List<EmailTemplateDTO> getUnusedEmailTemplates();
 
-    EmailTemplateStatisticsDTO getEmailTemplateStatistics(Long id);
+    EmailTemplateStatisticsDTO getEmailTemplateStatistics(Long emailTemplateId);
 
 }

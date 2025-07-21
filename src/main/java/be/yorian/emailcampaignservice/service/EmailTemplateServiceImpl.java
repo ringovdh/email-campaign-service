@@ -48,8 +48,8 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 
     @Override
     @Transactional(readOnly = true)
-    public EmailTemplateDTO getEmailTemplateById(Long id) {
-        EmailTemplate template = findEmailTemplateById(id);
+    public EmailTemplateDTO getEmailTemplateById(Long emailTemplateId) {
+        EmailTemplate template = findEmailTemplateById(emailTemplateId);
         return mapToEmailTemplateDTO(template);
     }
 
@@ -61,8 +61,8 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     }
 
     @Override
-    public EmailTemplateDTO updateEmailTemplate(Long id, EmailTemplateDTO updatedEmailTemplateDTO) {
-        EmailTemplate emailTemplate = findEmailTemplateById(id);
+    public EmailTemplateDTO updateEmailTemplate(Long emailTemplateId, EmailTemplateDTO updatedEmailTemplateDTO) {
+        EmailTemplate emailTemplate = findEmailTemplateById(emailTemplateId);
 
         updateEmailTemplateFromDTO(emailTemplate, updatedEmailTemplateDTO);
         log.info("Update EmailTemplate with id: {}", emailTemplate.getId());
@@ -71,9 +71,15 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     }
 
     @Override
-    public void deleteEmailTemplate(Long id) {
-        emailTemplateRepository.delete(findEmailTemplateById(id));
-        log.info("Delete EmailTemplate with id: {}", id);
+    public void deleteEmailTemplate(Long emailTemplateId) {
+        List<Long> linkedEmailCampaignIds = emailCampaignRepository.findAllByTemplateId(emailTemplateId).stream()
+                .map(EmailCampaign::getId).toList();
+        if (!linkedEmailCampaignIds.isEmpty()) {
+            throw new IllegalStateException("Cannot delete emailtemplate that is used by campaign(s): "
+                    + linkedEmailCampaignIds );
+        }
+        emailTemplateRepository.delete(findEmailTemplateById(emailTemplateId));
+        log.info("Delete EmailTemplate with id: {}", emailTemplateId);
     }
 
     @Override
@@ -99,21 +105,21 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 
     @Override
     @Transactional(readOnly = true)
-    public EmailTemplateStatisticsDTO getEmailTemplateStatistics(Long id) {
-        List<EmailCampaign> emailCampaigns = emailCampaignRepository.findAllByTemplateId(id);
+    public EmailTemplateStatisticsDTO getEmailTemplateStatistics(Long emailTemplateId) {
+        List<EmailCampaign> emailCampaigns = emailCampaignRepository.findAllByTemplateId(emailTemplateId);
         int numberOfCampaigns = emailCampaigns.size();
         int sentCount = emailCampaigns.stream()
                 .filter(c -> c.getStatus().equals(EmailCampaignStatus.SENT))
                 .mapToInt(c -> c.getContacts().size()).sum();
 
         return new EmailTemplateStatisticsDTO(
-                id,
+                emailTemplateId,
                 numberOfCampaigns,
                 sentCount);
     }
 
-    private EmailTemplate findEmailTemplateById(Long id) {
-        return emailTemplateRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(EMAILTEMPLATE_NOT_FOUND + id));
+    private EmailTemplate findEmailTemplateById(Long emailTemplateId) {
+        return emailTemplateRepository.findById(emailTemplateId)
+                .orElseThrow(() -> new EntityNotFoundException(EMAILTEMPLATE_NOT_FOUND + emailTemplateId));
     }
 }

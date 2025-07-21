@@ -12,15 +12,20 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class EmailTemplateIT extends BaseIT {
 
     private static final String EMAIL_TEMPLATE_BASE_URL = "/email-templates";
+    private static final String EMAIL_TEMPLATE_BY_ID_URL = EMAIL_TEMPLATE_BASE_URL + "/{emailTemplateId}";
     private static final String GET_EMAIL_TEMPLATE_UPDATED_URL = EMAIL_TEMPLATE_BASE_URL + "/updated";
     private static final String GET_EMAIL_TEMPLATE_UNUSED_URL = EMAIL_TEMPLATE_BASE_URL + "/unused";
-    private static final String GET_EMAIL_TEMPLATE_STATISTICS_URL = EMAIL_TEMPLATE_BASE_URL + "/{id}/statistics";
+    private static final String GET_EMAIL_TEMPLATE_STATISTICS_URL = EMAIL_TEMPLATE_BASE_URL + "/{emailTemplateId}/statistics";
 
 
     @Test
@@ -28,7 +33,7 @@ class EmailTemplateIT extends BaseIT {
             INSERT INTO EMAIL_TEMPLATE(id, name, subject, body_html, created_at, updated_at)
                     VALUES (1, 'Test email template', 'test subject', 'Hello Prompto', '2025-07-19T10:00:00', '2025-07-19T10:00:00');
             INSERT INTO EMAIL_TEMPLATE(id, name, subject, body_html, created_at, updated_at)
-                                VALUES (2, 'Test updated email template', 'test subject', 'Hello Prompto', '2025-07-19T10:00:00', '2025-07-21T10:00:00');"""
+                    VALUES (2, 'Test updated email template', 'test subject', 'Hello Prompto', '2025-07-19T10:00:00', '2025-07-21T10:00:00');"""
     )
     @DisplayName("Get all emailTemplates should return a list of emailTemplates")
     @Transactional
@@ -54,7 +59,7 @@ class EmailTemplateIT extends BaseIT {
             INSERT INTO EMAIL_TEMPLATE(id, name, subject, body_html, created_at, updated_at)
                     VALUES (1, 'Test email template', 'test subject', 'Hello Prompto', '2025-07-19T10:00:00', '2025-07-19T10:00:00');
             INSERT INTO EMAIL_TEMPLATE(id, name, subject, body_html, created_at, updated_at)
-                                VALUES (2, 'Test updated email template', 'test subject', 'Hello Prompto', '2025-07-19T10:00:00', '2025-07-21T10:00:00');"""
+                    VALUES (2, 'Test updated email template', 'test subject', 'Hello Prompto', '2025-07-19T10:00:00', '2025-07-21T10:00:00');"""
     )
     @DisplayName("Get all updated emailTemplates should return all updated emailTemplates")
     @Transactional
@@ -138,5 +143,26 @@ class EmailTemplateIT extends BaseIT {
         assertThat(responseDto).isNotNull();
         assertThat(responseDto.campaigns()).isEqualTo(2);
         assertThat(responseDto.emailsSend()).isEqualTo(2);
+    }
+
+    @Test
+    @Sql(statements = """
+            INSERT INTO EMAIL_TEMPLATE(id, name, subject, body_html, created_at, updated_at)
+                    VALUES (1, 'Test email template', 'test subject', 'Hello Prompto', '2025-07-19T10:00:00', '2025-07-19T10:00:00');
+            INSERT INTO EMAIL_CAMPAIGN(id, name, template_id, status, scheduled_at, created_at, updated_at)
+                    VALUES (1, 'Test email campaign', 1, 'DRAFT', '2025-07-21T10:00:00', '2025-07-19T10:00:00', null);
+            INSERT INTO CONTACT(id, email, created_at, updated_at)
+                    VALUES(1, 'test.a@prompto.com', '2025-07-19T10:00:00', null);
+            INSERT INTO EMAIL_CAMPAIGN_CONTACT(email_campaign_id, contact_id)
+                    VALUES (1, 1);"""
+    )
+    @DisplayName("Delete emailTemplate that is used by campaign should throw exception")
+    @Transactional
+    void deleteEmailTemplate_shouldThrowException_whenIsUsedInCampaign() throws Exception {
+        mockMvc.perform(delete(EMAIL_TEMPLATE_BY_ID_URL, 1L)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.errorCode", is(409)))
+                .andExpect(jsonPath("$.message", containsString("Cannot delete emailtemplate that is used")));
     }
 }

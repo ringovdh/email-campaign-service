@@ -11,18 +11,18 @@ public interface EmailTemplateController {
 
     ResponseEntity<EmailTemplateDTO> createEmailTemplate(EmailTemplateDTO emailTemplateDTO);
 
-    ResponseEntity<EmailTemplateDTO> getEmailTemplateById(Long id);
+    ResponseEntity<EmailTemplateDTO> getEmailTemplateById(Long emailTemplateId);
 
     ResponseEntity<List<EmailTemplateDTO>> getAllEmailTemplates();
 
-    ResponseEntity<EmailTemplateDTO> updateEmailTemplate(Long id, EmailTemplateDTO emailTemplateDTO);
+    ResponseEntity<EmailTemplateDTO> updateEmailTemplate(Long emailTemplateId, EmailTemplateDTO emailTemplateDTO);
 
-    void deleteEmailTemplate(Long id);
+    void deleteEmailTemplate(Long emailTemplateId);
 
     ResponseEntity<List<EmailTemplateDTO>> getUpdatedEmailTemplates();
 
     ResponseEntity<List<EmailTemplateDTO>> getUnusedEmailTemplates();
 
-    ResponseEntity<EmailTemplateStatisticsDTO> getEmailTemplateStatistics(Long id);
+    ResponseEntity<EmailTemplateStatisticsDTO> getEmailTemplateStatistics(Long emailTemplateId);
 
 }
