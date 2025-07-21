@@ -3,6 +3,7 @@ package be.yorian.emailcampaignservice.service;
 import be.yorian.emailcampaignservice.dto.EmailTemplateDTO;
 import be.yorian.emailcampaignservice.dto.EmailTemplateStatisticsDTO;
 import be.yorian.emailcampaignservice.enums.EmailCampaignStatus;
+import be.yorian.emailcampaignservice.mailchimp.helper.MailchimpEmailTemplateHelper;
 import be.yorian.emailcampaignservice.model.Contact;
 import be.yorian.emailcampaignservice.model.EmailCampaign;
 import be.yorian.emailcampaignservice.model.EmailTemplate;
@@ -45,6 +46,8 @@ class EmailTemplateServiceImplTest {
     private EmailTemplateRepository emailTemplateRepository;
     @Mock
     private EmailCampaignRepository emailCampaignRepository;
+    @Mock
+    private MailchimpEmailTemplateHelper mailchimpTemplateHelper;
     @InjectMocks
     private EmailTemplateServiceImpl emailTemplateService;
 

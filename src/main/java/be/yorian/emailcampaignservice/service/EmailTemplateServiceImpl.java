@@ -3,6 +3,7 @@ package be.yorian.emailcampaignservice.service;
 import be.yorian.emailcampaignservice.dto.EmailTemplateDTO;
 import be.yorian.emailcampaignservice.dto.EmailTemplateStatisticsDTO;
 import be.yorian.emailcampaignservice.enums.EmailCampaignStatus;
+import be.yorian.emailcampaignservice.mailchimp.helper.MailchimpEmailTemplateHelper;
 import be.yorian.emailcampaignservice.mapper.EmailTemplateMapper;
 import be.yorian.emailcampaignservice.model.EmailCampaign;
 import be.yorian.emailcampaignservice.model.EmailTemplate;
@@ -29,20 +30,26 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     private static final String EMAILTEMPLATE_NOT_FOUND = "EmailTemplate not found with id: ";
     private final EmailTemplateRepository emailTemplateRepository;
     private final EmailCampaignRepository emailCampaignRepository;
+    private final MailchimpEmailTemplateHelper mailchimpTemplateHelper;
+
 
     @Autowired
     public EmailTemplateServiceImpl(EmailTemplateRepository emailTemplateRepository,
-                                    EmailCampaignRepository emailCampaignRepository) {
+                                    EmailCampaignRepository emailCampaignRepository,
+                                    MailchimpEmailTemplateHelper mailchimpTemplateHelper) {
         this.emailTemplateRepository = emailTemplateRepository;
         this.emailCampaignRepository = emailCampaignRepository;
+        this.mailchimpTemplateHelper = mailchimpTemplateHelper;
     }
 
     @Override
     public EmailTemplateDTO createEmailTemplate(EmailTemplateDTO emailTemplateDTO) {
         EmailTemplate emailTemplate = mapToEmailTemplate(emailTemplateDTO);
+
+        mailchimpTemplateHelper.createTemplateInMailchimp(emailTemplateDTO);
+        // TODO add unique id from mailchimp to our emailTemplate
         EmailTemplate savedEmailTemplate = emailTemplateRepository.save(emailTemplate);
         log.info("Create EmailTemplate with id: {}", savedEmailTemplate.getId());
-
         return mapToEmailTemplateDTO(savedEmailTemplate);
     }
 

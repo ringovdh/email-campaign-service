@@ -1,6 +1,7 @@
 package be.yorian.emailcampaignservice.mapper;
 
 import be.yorian.emailcampaignservice.dto.EmailTemplateDTO;
+import be.yorian.emailcampaignservice.mailchimp.dto.MailchimpEmailTemplateDTO;
 import be.yorian.emailcampaignservice.model.EmailTemplate;
 
 import static java.time.LocalDateTime.now;
@@ -38,5 +39,13 @@ public final class EmailTemplateMapper {
         emailTemplate.setBodyHtml(updatedEmailTemplateDTO.bodyHtml());
         emailTemplate.setCreatedAt(updatedEmailTemplateDTO.createdAt());
         emailTemplate.setUpdatedAt(now());
+    }
+
+    public static MailchimpEmailTemplateDTO mapToMailchimpEmailTemplateDTO(EmailTemplateDTO emailTemplateDTO) {
+        return new MailchimpEmailTemplateDTO(
+                emailTemplateDTO.name(),
+                emailTemplateDTO.subject(),
+                emailTemplateDTO.bodyHtml()
+        );
     }
 }
